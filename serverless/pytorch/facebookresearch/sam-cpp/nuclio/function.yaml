@@ -1,0 +1,76 @@
+metadata:
+  name: cpp-facebookresearch-sam-vit-h
+  namespace: cvat
+  annotations:
+    name: Segment Anything C++
+    version: 2
+    type: interactor
+    spec:
+    max_pos_points: 1
+    max_neg_points: 0
+    animated_gif: https://raw.githubusercontent.com/cvat-ai/cvat/develop/site/content/en/images/hrnet_example.gif
+    help_message: The interactor allows to get a mask of an object using at least one positive, and any negative points inside it
+
+spec:
+  description: Interactive object segmentation with Segment-Anything (C++ version)
+  runtime: "python:3.8"
+  handler: main:handler
+  eventTimeout: 30s
+  env:
+    - name: PYTHONPATH
+      value: /opt/nuclio/sam
+
+  build:
+    image: cvat.cpp.facebookresearch.sam.vit_h
+    baseImage: cnstark/pytorch:2.0.1-py3.10.11-ubuntu22.04
+
+    directives:
+      preCopy:
+        # disable interactive frontend
+        - kind: ENV
+          value: DEBIAN_FRONTEND=noninteractive
+        # install basic dependencies
+        - kind: RUN
+          value: apt-get update && apt-get -y install curl git cmake libsdl2-dev wget python3-pip
+        # set workdir
+        - kind: WORKDIR
+          value: /opt/nuclio/sam
+        # Install the required Python tools (setuptools, wheel)
+        - kind: RUN
+          value: pip install --upgrade pip setuptools wheel opencv-python-headless requests opencv-contrib-python imutils
+        # clone the sam.cpp repository
+        - kind: RUN
+          value: git clone --recursive --verbose https://github.com/vivasvan-patel-ev/sam.cpp.git
+        # set workdir
+        - kind: WORKDIR
+          value: /opt/nuclio/sam/sam.cpp
+        # Create checkpoint directory
+        - kind: RUN
+          value: mkdir checkpoints
+        # download the SAM model checkpoint
+        - kind: RUN
+          value: wget -O checkpoints/sam_vit_b_01ec64.pth https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
+        # convert PTH model to GGML format
+        - kind: RUN
+          value: python3 convert-pth-to-ggml.py checkpoints/sam_vit_b_01ec64.pth . 1
+        # move the converted file to checkpoints
+        - kind: RUN
+          value: mv ggml-model-f16.bin checkpoints/
+        # build sam.cpp
+        - kind: RUN
+          value: mkdir build && cd build && cmake .. && make -j4
+
+  triggers:
+    myHttpTrigger:
+      maxWorkers: 2
+      kind: "http"
+      workerAvailabilityTimeoutMilliseconds: 10000
+      attributes:
+        maxRequestBodySize: 33554432 # 32MB
+
+  platform:
+    attributes:
+      restartPolicy:
+        name: always
+        maximumRetryCount: 3
+      mountMode: volume
