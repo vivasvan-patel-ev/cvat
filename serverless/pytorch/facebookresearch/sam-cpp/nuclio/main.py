@@ -1,7 +1,3 @@
-# Copyright (C) 2023-2024 CVAT.ai Corporation
-#
-# SPDX-License-Identifier: MIT
-
 import json
 import base64
 from PIL import Image
@@ -12,21 +8,57 @@ import numpy as np
 import cv2
 import imutils
 import time
+import ctypes
+import platform
+import os
+
+
+# Define the params structure
+class SamParams(ctypes.Structure):
+    _fields_ = [
+        ("seed", ctypes.c_int),
+        ("n_threads", ctypes.c_int),
+        ("model", ctypes.c_char * 256),
+        ("fname_inp", ctypes.c_char * 256),
+        ("fname_out", ctypes.c_char * 256),
+    ]
+
+    def __init__(
+        self,
+        seed=-1,
+        n_threads=4,
+        model="./checkpoints/ggml-model-f16.bin",
+        fname_inp="./img.jpg",
+        fname_out="img.png",
+    ):
+        self.seed = seed
+        self.n_threads = n_threads
+        self.model = model.encode("utf-8")
+        self.fname_inp = fname_inp.encode("utf-8")
+        self.fname_out = fname_out.encode("utf-8")
 
 
 def init_context(context):
     # model = ModelHandler()
-    # context.user_data.model = model
-    # Open a log file in write mode
-    with open("output.log", "w") as log_file:
-        # Start the process and redirect stdout and stderr to the log file
-        process = subprocess.Popen(
-            ["./build/bin/sam", "-m", "./checkpoints/ggml-model-f16.bin"],
-            stdout=log_file,
-            stderr=log_file,
-            universal_newlines=True,  # Ensure the output is in text mode
-        )
+    # Load the shared library
+    architecture = platform.machine()
 
+    # Set the correct path based on architecture
+    if architecture == "x86_64" or architecture == "64bit":
+        lib_path = "x64"
+    elif architecture == "arm64":
+        lib_path = "arm"
+    elif architecture == "aarch64":
+        lib_path = "aarch"
+    else:
+        raise Exception(f"Unsupported architecture: {architecture}")
+    print(f"Loading shared library from: ./release/{lib_path}/libmask.so")
+    print(os.getcwd())
+    print(os.listdir("./release"))
+    print(os.listdir(f"./release/{lib_path}"))
+
+    lib = ctypes.CDLL(f"./release/{lib_path}/libmask.so")
+    context.user_data.model = lib
     context.logger.info("Init context...100%")
 
 
@@ -44,6 +76,7 @@ def handler(context, event):
         elapsed_time = time.time() - start_time
         context.logger.info(f"Time to decode and load image: {elapsed_time} seconds")
 
+        context.logger.info(f"pos_points before transform: {data['pos_points']} width:{width} height:{height}")
         # Step 2: Rotate image to landscape if it's portrait
         rotated = False
         start_time = time.time()
@@ -52,9 +85,13 @@ def handler(context, event):
             rotated = True
             context.logger.info("Rotated image from portrait to landscape.")
             # Update pos_points to reflect the rotation
-            pos_points = [(y, width - x) for (x, y) in data["pos_points"]]
+            pos_points = [(y, width-x) for (x, y) in data["pos_points"]]
+            width, height = image.size  # Update width and height
         else:
             pos_points = data["pos_points"]  # No rotation needed
+
+        context.logger.info(f"pos_points after transform: {data['pos_points']} width:{width} height:{height}")
+
         elapsed_time = time.time() - start_time
         context.logger.info(
             f"Time to check and rotate image if needed: {elapsed_time} seconds"
@@ -68,52 +105,95 @@ def handler(context, event):
         elapsed_time = time.time() - start_time
         context.logger.info(f"Time to save image in memory: {elapsed_time} seconds")
 
-        # Step 4: Prepare image payload
-        files = {"image": img_byte_arr}
-
-        # Step 5: Time and send the request
+        # Step 4: Convert image to RGB format and flatten to a list
         start_time = time.time()
-        mask_response = requests.post(
-            f"http://localhost:42069/generate_mask?x={pos_points[0][0]}&y={pos_points[0][1]}",
-            files=files,
-        )
+        image_rgb = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)  # Convert to BGR
+        image_data = image_rgb.flatten().tolist()  # Flatten to 1D list
         elapsed_time = time.time() - start_time
         context.logger.info(
-            f"Time to send request and get response: {elapsed_time} seconds"
+            f"Time to convert image to RGB and flatten: {elapsed_time} seconds"
         )
 
-        # Step 6: Handle response
+        # Step 5: Create an instance of SamParams and set values
+        params = SamParams()
+
+        # Step 6: Prepare output variables
+        output_data = ctypes.POINTER(ctypes.c_ubyte)()
+        output_size = ctypes.c_int()
+
+        # Step 7: Call the function to generate the mask
         start_time = time.time()
-        if mask_response.status_code != 200:
+
+        # Hard code data as correct types
+        # image_data = (ctypes.c_ubyte * len(image_data))(*image_data)
+        c_width = ctypes.c_int(width)
+        c_height = ctypes.c_int(height)
+        x = ctypes.c_float(pos_points[0][0])  # Replace with actual value if needed
+        y = ctypes.c_float(pos_points[0][1])  # Replace with actual value if needed
+        seed = ctypes.c_int(params.seed)
+        n_threads = ctypes.c_int(params.n_threads)
+        model = ctypes.c_char_p(params.model)
+        fname_inp = ctypes.c_char_p(params.fname_inp)
+        fname_out = ctypes.c_char_p(params.fname_out)
+        output_data = ctypes.POINTER(ctypes.c_ubyte)()
+        output_size = ctypes.c_int()
+        # Call the function to generate the mask
+        context.user_data.model.generate_mask_wrapper(
+            (ctypes.c_ubyte * len(image_data))(*image_data),
+            c_width,
+            c_height,
+            x,  # x coordinate (replace with actual value)
+            y,  # y coordinate (replace with actual value)
+            seed,
+            n_threads,
+            model,  # Pass model as bytes
+            fname_inp,  # Pass fname_inp as bytes
+            fname_out,  # Pass fname_out as bytes
+            ctypes.byref(output_data),
+            ctypes.byref(output_size),
+        )
+
+        context.user_data.model.generate_mask_wrapper.restype = None
+        elapsed_time = time.time() - start_time
+        context.logger.info(f"Time to generate mask: {elapsed_time} seconds")
+
+        if output_size.value == 0:
+            context.logger.error("No mask found!")
             return context.Response(
                 body=json.dumps({"mask": []}),
                 content_type="application/json",
                 status_code=200,
             )
 
-        elapsed_time = time.time() - start_time
-        context.logger.info(f"Time to check response status: {elapsed_time} seconds")
-
-        # Step 7: Convert response content to grayscale image
+        # Step 8: Convert the pointer to bytes
         start_time = time.time()
-        mask_image = Image.open(io.BytesIO(mask_response.content))
-        gray_image = cv2.cvtColor(np.array(mask_image), cv2.COLOR_RGB2GRAY)
+        bytes_data = ctypes.string_at(output_data, output_size.value)
+        elapsed_time = time.time() - start_time
+        context.logger.info(
+            f"Time to convert output pointer to bytes: {elapsed_time} seconds"
+        )
 
-        # Rotate back to original orientation if the image was rotated
+        # Step 9: Convert the output to a numpy array
+        start_time = time.time()
+        mask_data = np.frombuffer(bytes_data, dtype=np.uint8)
+        mask_image = mask_data.reshape(
+            -1, width
+        )  # Adjust if necessary based on output format
+        elapsed_time = time.time() - start_time
+        context.logger.info(
+            f"Time to convert output to numpy array: {elapsed_time} seconds"
+        )
+
+        # Step 10: Rotate back to original orientation if the image was rotated
         start_time = time.time()
         if rotated:
-            gray_image = np.rot90(gray_image, -1)  # Rotate back to portrait
+            mask_image = np.rot90(mask_image, -1)  # Rotate back to portrait
             context.logger.info(
-                "Rotated grayscale image back to original portrait orientation."
+                "Rotated mask image back to original portrait orientation."
             )
         elapsed_time = time.time() - start_time
         context.logger.info(
-            f"Time to rotate grayscale image back to original orientation if needed: {elapsed_time} seconds"
-        )
-
-        elapsed_time = time.time() - start_time
-        context.logger.info(
-            f"Time to process response and convert to grayscale: {elapsed_time} seconds"
+            f"Time to rotate mask image back to original orientation if needed: {elapsed_time} seconds"
         )
 
         total_elapsed_time = time.time() - start_time_total
@@ -122,7 +202,7 @@ def handler(context, event):
         )
 
         return context.Response(
-            body=json.dumps({"mask": gray_image.tolist()}),
+            body=json.dumps({"mask": mask_image.tolist()}),
             content_type="application/json",
             status_code=200,
         )

@@ -1,0 +1,16 @@
+model:
+  v20231212:
+    name: "AOI"
+    arch: "Yolov8"
+    task: "segmentation+detection"
+    version: "v2023.12.12"
+    endpoint: "app-{0}-1x0-ep-aoi-building-segment-realtime"
+    input:
+      resizer: "letterbox"
+      size: [1024, 1024]
+    output:
+      classes: { 1: "building", 2: "swimming-pool" }
+      cnf_thresh: 0.4
+      nms_thresh: 0.7
+      num_classes: 2
+      max_detections: 300

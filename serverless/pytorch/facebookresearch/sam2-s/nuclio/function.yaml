@@ -2,11 +2,14 @@
 #
 # SPDX-License-Identifier: MIT
 
+# COMMAND TO RUN at serverless folder
+# nuctl delete function samv2-small --force && ./deploy_cpu.sh ./pytorch/facebookresearch/sam2-s/nuclio/ && docker logs --follow $(docker ps -qf "name=samv2-small")
+
 metadata:
-  name: pth-facebookresearch-sam2-vit-h
+  name: samv2-small
   namespace: cvat
   annotations:
-    name: Segment Anything 2.0
+    name: SAM 2 Small
     version: 2
     type: interactor
     spec:
@@ -22,7 +25,7 @@ spec:
   eventTimeout: 30s
 
   build:
-    image: cvat.pth.facebookresearch.sam2.vit_h
+    image: samv2-small
     baseImage: ubuntu:22.04
     directives:
       preCopy:
@@ -37,11 +40,11 @@ spec:
           value: apt-get update && apt-get -y install build-essential curl git python3 python3-pip ffmpeg libsm6 libxext6
       # install sam2 code
         - kind: RUN
-          value: SAM2_BUILD_CUDA=0 pip install git+https://github.com/facebookresearch/segment-anything-2.git@main
-      # download sam2 weights
+          value: pip install git+https://github.com/SauravMaheshkar/samv2.git numpy pytest
+      # download sam2 weights using curl
         - kind: RUN
-          value: curl -O https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_large.pt
-        # map pip3 and python3 to pip and python
+          value: curl -o sam2_hiera_small.pt https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_small.pt
+      # map pip3 and python3 to pip and python
         - kind: RUN
           value: ln -s /usr/bin/pip3 /usr/local/bin/pip && ln -s /usr/bin/python3 /usr/bin/python
   triggers:

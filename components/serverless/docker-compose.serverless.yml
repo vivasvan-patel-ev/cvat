@@ -22,6 +22,10 @@ services:
         max-file: "3"
 
   cvat_server:
+    deploy:
+      resources:
+        limits:
+          memory: 15g
     environment:
       CVAT_SERVERLESS: 1
     extra_hosts:

@@ -98,6 +98,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.services.cvat.loadbalancer.server.port=8080
+      # - traefik.http.routers.cvat.rule=(Host(`${CVAT_HOST3:-localhost}`) || Host(`${CVAT_HOST2:-localhost}`) || Host(`${CVAT_HOST:-localhost}`)) &&
       - traefik.http.routers.cvat.rule=Host(`${CVAT_HOST:-localhost}`) &&
         PathPrefix(`/api/`, `/static/`, `/admin`, `/documentation/`, `/django-rq`)
       - traefik.http.routers.cvat.entrypoints=web
@@ -233,6 +234,7 @@ services:
       - traefik.enable=true
       - traefik.http.services.cvat-ui.loadbalancer.server.port=80
       - traefik.http.routers.cvat-ui.rule=Host(`${CVAT_HOST:-localhost}`)
+      # - traefik.http.routers.cvat-ui.rule=(Host(`${CVAT_HOST3:-localhost}`) || Host(`${CVAT_HOST2:-localhost}`) || Host(`${CVAT_HOST:-localhost}`))
       - traefik.http.routers.cvat-ui.entrypoints=web
     networks:
       - cvat
@@ -246,6 +248,8 @@ services:
       - 8090:8090
     environment:
       CVAT_HOST: ${CVAT_HOST:-localhost}
+      CVAT_HOST2: ${CVAT_HOST2:-localhost}
+      CVAT_HOST3: ${CVAT_HOST3:-localhost}
       DJANGO_LOG_VIEWER_HOST: grafana
       DJANGO_LOG_VIEWER_PORT: 3000
 
@@ -340,6 +344,7 @@ services:
       GF_SERVER_ROOT_URL: http://${CVAT_HOST:-localhost}/analytics
       GF_INSTALL_PLUGINS: https://github.com/grafana/clickhouse-datasource/releases/download/v4.0.8/grafana-clickhouse-datasource-4.0.8.linux_amd64.zip;grafana-clickhouse-datasource
       GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/all_events.json
+      # http_proxy: http://3.13.161.178:8080
     volumes:
       - ./components/analytics/grafana/dashboards/:/var/lib/grafana/dashboards/:ro
     entrypoint:

@@ -1,0 +1,59 @@
+metadata:
+  name: AOI
+  namespace: cvat
+  annotations:
+    name: YOLO v8
+    type: detector
+    spec: |
+      [
+        { "id": 0, "name": "building", "type": "polygon" },
+        { "id": 1, "name": "swimming-pool", "type": "polygon" }
+      ]
+spec:
+  description: YOLO v7 via onnx
+  runtime: "python:3.8"
+  handler: main:handler
+  eventTimeout: 30s
+  build:
+    image: cvat.ev.aoi.yolov8
+    baseImage: ubuntu:22.04
+
+    directives:
+      preCopy:
+        - kind: USER
+          value: root
+        - kind: COPY
+          value: . /opt/nuclio/
+        - kind: WORKDIR
+          value: /opt/nuclio
+        - kind: RUN
+          value: ls
+        - kind: RUN
+          value: mkdir ~/.config && mkdir ~/.config/pip/ && echo "[global] \n index-url = https://abhinav.modi:AKCp8oiHMevUVGYmzdzKjL11iNugYSmmGryzk9j76g15XubH5pSFrnPS5Qpp2MbvcdRpTt3NJ@eagleview.jfrog.io/artifactory/api/pypi/pypi-local/simple \n extra-index-url = https://pypi.python.org/simple/" > ~/.config/pip/pip.conf
+        - kind: RUN
+          value: echo 'export AWS_ACCESS_KEY_ID="ASIA53KKSR2EGCZO2DPD" \n export AWS_SECRET_ACCESS_KEY="1BoMuR9eBJwfzsmflGVoY6/QDPIbB4utHU3Pcv8x" \n export AWS_SESSION_TOKEN="IQoJb3JpZ2luX2VjEF4aCXVzLWVhc3QtMiJGMEQCIHAhChRfhtNOomZrl6qg81scvZQFIWFk80ST0npBRP+KAiALUPLFdAmZdZdVxOyUI3G/hurOF2JbsSf8vFE1IPSrOyqcAwiH//////////8BEAIaDDk1MjAyODUzMjM2MCIM6qZF3t15SyrBpk/PKvACCm2ku+6eG1M2f0N9aO2/3+zN9Hjw6sUOOhIZZlk/5U1JD7UNcKS4AhXXgQaR9p2HFu3UGvRyYv/GUmOc30ZIzP9pZeDdLenxBETjpcYSkTAQabRcGesHNP4ZjVYyJyiipWfqn+x7iuRJ+Zh5qPeP+fq0gffKFqrDBha88e7id9VuEdcn+cZQFuIh+rzY4PRlfkC8C7kPB/boDi9UO+BQ9+vXjugseTrMcK6sgfgU/Ta0PgvBMwtAx7ZZ8PjNLujgJPLmYlz75Gwuyz2bGc2gX8M+GzzZpHjTHptYiSBtYm51tDZ4S80T3oj8PtJNYVMed5zdyHiID1x3bQx4+afMcieoXN4GVvjHKQnA7Lp/tlENX7X2nZ0OoJ/YwPZ88g51IWYZVCzg5TFSfEiMSsD0vrTYMRIbhqBOzRB2sJ/ALGkX3tyhdbqoe89TjJU9m7iZ0cxOQQuzujCSVy8Bzd4jZV6rjZKw+ZSP24RjrIlOsCYwzdqEtwY6pwFZXMOY3mInrfPQ8yJiFiLJmHoEHlxQ7znNFCkrbCRbkXvxZ+B9LPfFdjmvbqgZkF8iZHDepwIp22gslhx/vW3k3Y3xbTQbnk7RFhLBEbn9o6G8fK7YSS0XWKAwAscZKJ5y7HJ8a7NbKv57qzlPsXtYbC+qii5Evw5r+ThlG+ipwgJBn1fJpMwPQghG3PPAukbx+dxIOtA9xAHzQ5vmNPSXqK4LCCBt+A=="' >> /root/.bashrc
+        - kind: RUN
+          value: mkdir ~/.aws && echo '[default]\naws_access_key_id=ASIA53KKSR2EGCZO2DPD\naws_secret_access_key=1BoMuR9eBJwfzsmflGVoY6/QDPIbB4utHU3Pcv8x\naws_session_token=IQoJb3JpZ2luX2VjEF4aCXVzLWVhc3QtMiJGMEQCIHAhChRfhtNOomZrl6qg81scvZQFIWFk80ST0npBRP+KAiALUPLFdAmZdZdVxOyUI3G/hurOF2JbsSf8vFE1IPSrOyqcAwiH//////////8BEAIaDDk1MjAyODUzMjM2MCIM6qZF3t15SyrBpk/PKvACCm2ku+6eG1M2f0N9aO2/3+zN9Hjw6sUOOhIZZlk/5U1JD7UNcKS4AhXXgQaR9p2HFu3UGvRyYv/GUmOc30ZIzP9pZeDdLenxBETjpcYSkTAQabRcGesHNP4ZjVYyJyiipWfqn+x7iuRJ+Zh5qPeP+fq0gffKFqrDBha88e7id9VuEdcn+cZQFuIh+rzY4PRlfkC8C7kPB/boDi9UO+BQ9+vXjugseTrMcK6sgfgU/Ta0PgvBMwtAx7ZZ8PjNLujgJPLmYlz75Gwuyz2bGc2gX8M+GzzZpHjTHptYiSBtYm51tDZ4S80T3oj8PtJNYVMed5zdyHiID1x3bQx4+afMcieoXN4GVvjHKQnA7Lp/tlENX7X2nZ0OoJ/YwPZ88g51IWYZVCzg5TFSfEiMSsD0vrTYMRIbhqBOzRB2sJ/ALGkX3tyhdbqoe89TjJU9m7iZ0cxOQQuzujCSVy8Bzd4jZV6rjZKw+ZSP24RjrIlOsCYwzdqEtwY6pwFZXMOY3mInrfPQ8yJiFiLJmHoEHlxQ7znNFCkrbCRbkXvxZ+B9LPfFdjmvbqgZkF8iZHDepwIp22gslhx/vW3k3Y3xbTQbnk7RFhLBEbn9o6G8fK7YSS0XWKAwAscZKJ5y7HJ8a7NbKv57qzlPsXtYbC+qii5Evw5r+ThlG+ipwgJBn1fJpMwPQghG3PPAukbx+dxIOtA9xAHzQ5vmNPSXqK4LCCBt+A==\nregion=us-east-2' > ~/.aws/credentials
+        - kind: RUN
+          value: apt update && apt install --no-install-recommends -y wget python3-pip
+        # - kind: RUN
+        #   value: export POETRY_HTTP_BASIC_EV_USERNAME=bishwarup.b && export POETRY_HTTP_BASIC_EV_PASSWORD=AKCp8hzNRZ7njWvFDLe488cqaLHVM7vRKHGCtdWZQS9KRyHP9kCcFzRZ6gQTmSCwzH6A2vrNs
+        - kind: RUN
+          value: pip install evml-inference nest_asyncio
+        - kind: RUN
+          value: ln -s /usr/bin/python3 /usr/bin/python
+
+  triggers:
+    myHttpTrigger:
+      maxWorkers: 2
+      kind: "http"
+      workerAvailabilityTimeoutMilliseconds: 10000
+      attributes:
+        maxRequestBodySize: 33554432 # 32MB
+
+  platform:
+    attributes:
+      restartPolicy:
+        name: always
+        maximumRetryCount: 3
+      mountMode: volume

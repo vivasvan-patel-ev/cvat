@@ -540,7 +540,7 @@ CACHES = {
     'media': {
        'BACKEND' : 'django.core.cache.backends.redis.RedisCache',
        "LOCATION": f"redis://:{urllib.parse.quote(redis_ondisk_password)}@{redis_ondisk_host}:{redis_ondisk_port}",
-       'TIMEOUT' : 3600 * 24, # 1 day
+       'TIMEOUT' : 3600 * 2, # 1 day
     }
 }
 
@@ -699,7 +699,7 @@ BUCKET_CONTENT_MAX_PAGE_SIZE =  500
 
 IMPORT_CACHE_FAILED_TTL = timedelta(days=30)
 IMPORT_CACHE_SUCCESS_TTL = timedelta(hours=1)
-IMPORT_CACHE_CLEAN_DELAY = timedelta(hours=12)
+IMPORT_CACHE_CLEAN_DELAY = timedelta(hours=2)
 
 ASSET_MAX_SIZE_MB = 10
 ASSET_SUPPORTED_TYPES = ('image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf', )
