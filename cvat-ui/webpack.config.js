@@ -8,6 +8,7 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
 const CopyPlugin = require('copy-webpack-plugin');
+const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 
 module.exports = (env) => {
     const defaultAppConfig = path.join(__dirname, 'src/config.tsx');
@@ -199,6 +200,10 @@ module.exports = (env) => {
                 append: '\n',
                 filename: `${sourceMapsToken}/[file].map`,
             })] : []),
+            new WebpackManifestPlugin({
+                fileName: 'asset-manifest.json',
+                publicPath: '/' // Adjust if your assets are served from a different base path
+            }),
         ],
     }
 };
