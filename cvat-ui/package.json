@@ -67,5 +67,8 @@
     "redux-devtools-extension": "^2.13.9",
     "redux-logger": "^4.0.0",
     "redux-thunk": "^2.3.0"
+  },
+  "devDependencies": {
+    "webpack-manifest-plugin": "^5.0.0"
   }
 }

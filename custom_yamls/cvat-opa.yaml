@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-opa
+  namespace: platform-evml
+  labels:
+    app: cvat-opa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-opa
+  template:
+    metadata:
+      labels:
+        app: cvat-opa
+    spec:
+      containers:
+        - name: opa
+          image: openpolicyagent/opa:0.63.0
+          ports:
+            - containerPort: 8181
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8181
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          args:
+            - run
+            - --server
+            - --log-level=error
+            - --set=services.cvat.url=http://cvat-server:8080
+            - --set=bundles.cvat.service=cvat
+            - --set=bundles.cvat.resource=/api/auth/rules
+            - --set=bundles.cvat.polling.min_delay_seconds=5
+            - --set=bundles.cvat.polling.max_delay_seconds=15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-opa
+  namespace: platform-evml
+  labels:
+    app: cvat-opa
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8181
+      targetPort: http
+      protocol: TCP
+  selector:
+    app: cvat-opa
+---
+# For DNS alias compatibility with docker-compose
+apiVersion: v1
+kind: Service
+metadata:
+  name: opa
+  namespace: platform-evml
+  labels:
+    app: cvat-opa
+spec:
+  type: ExternalName
+  externalName: cvat-opa.platform-evml.svc.cluster.local
+  ports:
+    - port: 8181

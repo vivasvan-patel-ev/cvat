@@ -1,0 +1,6174 @@
+---
+apiVersion: v1
+automountServiceAccountToken: true
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: clickhouse
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: clickhouse
+    app.kubernetes.io/version: 23.12.2
+    helm.sh/chart: clickhouse-4.1.16
+  name: cvat-clickhouse
+  namespace: default
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/version: 10.1.5
+    helm.sh/chart: grafana-6.60.6
+  name: cvat-grafana
+  namespace: default
+---
+apiVersion: v1
+automountServiceAccountToken: true
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.2.3
+    helm.sh/chart: redis-18.5.0
+  name: cvat-redis
+  namespace: default
+---
+apiVersion: v1
+automountServiceAccountToken: false
+kind: ServiceAccount
+metadata:
+  annotations: null
+  labels:
+    app.kubernetes.io/instance: cvat-default
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: traefik
+    helm.sh/chart: traefik-34.4.1
+  name: cvat-traefik
+  namespace: default
+---
+apiVersion: v1
+automountServiceAccountToken: true
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: Aggregator
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: vector
+    app.kubernetes.io/version: 0.26.0-alpine
+    helm.sh/chart: vector-0.19.2
+  name: cvat-vector
+---
+apiVersion: v1
+data:
+  admin-password: VTRRTHBVR3oycEZwMzhyUFdHZWxDN2xTZTcwck9CT0NHUGwzeEh1dQ==
+  admin-user: YWRtaW4=
+kind: Secret
+metadata:
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/version: 10.1.5
+    helm.sh/chart: grafana-6.60.6
+  name: cvat-grafana
+  namespace: default
+type: Opaque
+---
+apiVersion: v1
+data:
+  init.sh: IyEvYmluL2Jhc2gKCkNMSUNLSE9VU0VfREI9IiR7Q0xJQ0tIT1VTRV9EQjotY3ZhdH0iOwoKY2xpY2tob3VzZS1jbGllbnQgLS1xdWVyeSAiQ1JFQVRFIERBVEFCQVNFIElGIE5PVCBFWElTVFMgJHtDTElDS0hPVVNFX0RCfTsiCgplY2hvICIKQ1JFQVRFIFRBQkxFIElGIE5PVCBFWElTVFMgJHtDTElDS0hPVVNFX0RCfS5ldmVudHMKKAogICAgXGBzY29wZVxgIFN0cmluZyBOT1QgTlVMTCwKICAgIFxgb2JqX25hbWVcYCBTdHJpbmcgTlVMTCwKICAgIFxgb2JqX2lkXGAgVUludDY0IE5VTEwsCiAgICBcYG9ial92YWxcYCBTdHJpbmcgTlVMTCwKICAgIFxgc291cmNlXGAgU3RyaW5nIE5PVCBOVUxMLAogICAgXGB0aW1lc3RhbXBcYCBEYXRlVGltZTY0KDMsICdFdGMvVVRDJykgTk9UIE5VTEwsCiAgICBcYGNvdW50XGAgVUludDE2IE5VTEwsCiAgICBcYGR1cmF0aW9uXGAgVUludDMyIERFRkFVTFQgdG9VSW50MzIoMCksCiAgICBcYHByb2plY3RfaWRcYCBVSW50NjQgTlVMTCwKICAgIFxgdGFza19pZFxgIFVJbnQ2NCBOVUxMLAogICAgXGBqb2JfaWRcYCBVSW50NjQgTlVMTCwKICAgIFxgdXNlcl9pZFxgIFVJbnQ2NCBOVUxMLAogICAgXGB1c2VyX25hbWVcYCBTdHJpbmcgTlVMTCwKICAgIFxgdXNlcl9lbWFpbFxgIFN0cmluZyBOVUxMLAogICAgXGBvcmdfaWRcYCBVSW50NjQgTlVMTCwKICAgIFxgb3JnX3NsdWdcYCBTdHJpbmcgTlVMTCwKICAgIFxgcGF5bG9hZFxgIFN0cmluZyBOVUxMCikKRU5HSU5FID0gTWVyZ2VUcmVlClBBUlRJVElPTiBCWSB0b1lZWVlNTSh0aW1lc3RhbXApCk9SREVSIEJZICh0aW1lc3RhbXApClNFVFRJTkdTIGluZGV4X2dyYW51bGFyaXR5ID0gODE5Mgo7IiB8IGNsaWNraG91c2UtY2xpZW50Cg==
+immutable: false
+kind: Secret
+metadata:
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+    tier: clickhouse
+  name: cvat-clickhouse-init
+  namespace: default
+---
+apiVersion: v1
+immutable: true
+kind: Secret
+metadata:
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+    tier: analytics
+  name: cvat-analytics-secret
+  namespace: default
+stringData:
+  CLICKHOUSE_DB: cvat
+  CLICKHOUSE_HOST: cvat-clickhouse
+  CLICKHOUSE_PASSWORD: user
+  CLICKHOUSE_PORT: "8123"
+  CLICKHOUSE_USER: user
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+  name: cvat-postgres-secret
+  namespace: default
+stringData:
+  database: cvat
+  password: cvat_postgresql
+  postgres-password: cvat_postgresql_postgres
+  replication-password: cvat_postgresql_replica
+  username: cvat
+type: generic
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+  name: cvat-redis-secret
+  namespace: default
+stringData:
+  password: cvat_redis
+type: generic
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+  name: cvat-kvrocks-secret
+  namespace: default
+stringData:
+  password: cvat_kvrocks
+type: generic
+---
+apiVersion: v1
+data:
+  00_default_overrides.xml: |
+    <clickhouse>
+      <!-- Macros -->
+      <macros>
+        <shard from_env="CLICKHOUSE_SHARD_ID"><\/shard>
+        <replica from_env="CLICKHOUSE_REPLICA_ID"><\/replica>
+        <layer>cvat-clickhouse<\/layer>
+      <\/macros>
+      <!-- Log Level -->
+      <logger>
+        <level>information<\/level>
+      <\/logger>
+    <\/clickhouse>
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/component: clickhouse
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: clickhouse
+    app.kubernetes.io/version: 23.12.2
+    helm.sh/chart: clickhouse-4.1.16
+  name: cvat-clickhouse
+  namespace: default
+---
+apiVersion: v1
+data:
+  setup.sh: |-
+    #!/bin/bash
+    # Execute entrypoint as usual after obtaining KEEPER_SERVER_ID
+    # check KEEPER_SERVER_ID in persistent volume via myid
+    # if not present, set based on POD hostname
+    if [[ -f "/bitnami/clickhouse/keeper/data/myid" ]]; then
+        export KEEPER_SERVER_ID="$(cat /bitnami/clickhouse/keeper/data/myid)"
+    else
+        HOSTNAME="$(hostname -s)"
+        if [[ $HOSTNAME =~ (.*)-([0-9]+)$ ]]; then
+            export KEEPER_SERVER_ID=${BASH_REMATCH[2]}
+        else
+            echo "Failed to get index from hostname $HOST"
+            exit 1
+        fi
+    fi
+    exec '/opt/bitnami/scripts/clickhouse/entrypoint.sh /opt/bitnami/scripts/clickhouse/run.sh' -- --listen_host=0.0.0.0
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/component: clickhouse
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: clickhouse
+    app.kubernetes.io/version: 23.12.2
+    helm.sh/chart: clickhouse-4.1.16
+  name: cvat-clickhouse-scripts
+  namespace: default
+---
+apiVersion: v1
+data:
+  dashboardproviders.yaml: |
+    apiVersion: 1
+    providers:
+    - disableDeletion: false
+      editable: true
+      folder: ""
+      name: default
+      options:
+        path: /var/lib/grafana/dashboards
+      orgId: 1
+      type: file
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+    - editable: false
+      isDefault: true
+      jsonData:
+        defaultDatabase: ${CLICKHOUSE_DB}
+        port: ${CLICKHOUSE_PORT}
+        protocol: http
+        server: ${CLICKHOUSE_HOST}
+        tlsSkipVerify: false
+        username: ${CLICKHOUSE_USER}
+      name: ClickHouse
+      secureJsonData:
+        password: ${CLICKHOUSE_PASSWORD}
+      type: grafana-clickhouse-datasource
+  grafana.ini: |
+    [analytics]
+    check_for_updates = true
+    [auth]
+    disable_login_form = true
+    disable_signout_menu = true
+    [auth.anonymous]
+    enabled = true
+    org_role = Admin
+    [auth.basic]
+    enabled = false
+    [dashboards]
+    default_home_dashboard_path = /var/lib/grafana/dashboards/default/all_events.json
+    [grafana_net]
+    url = https://grafana.net
+    [log]
+    mode = console
+    [paths]
+    data = /var/lib/grafana/
+    logs = /var/log/grafana
+    plugins = /var/lib/grafana/plugins
+    provisioning = /etc/grafana/provisioning
+    [server]
+    domain = ''
+    root_url = https://cvat.local/analytics
+    [users]
+    viewers_can_edit = true
+  plugins: grafana-clickhouse-datasource
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/version: 10.1.5
+    helm.sh/chart: grafana-6.60.6
+  name: cvat-grafana
+  namespace: default
+---
+apiVersion: v1
+data:
+  master.conf: |-
+    dir /data
+    # User-supplied master configuration:
+    rename-command FLUSHDB ""
+    rename-command FLUSHALL ""
+    # End of master configuration
+  redis.conf: |-
+    # User-supplied common configuration:
+    # Enable AOF https://redis.io/topics/persistence#append-only-file
+    appendonly yes
+    # Disable RDB persistence, AOF persistence already enabled.
+    save ""
+    # End of common configuration
+  replica.conf: |-
+    dir /data
+    # User-supplied replica configuration:
+    rename-command FLUSHDB ""
+    rename-command FLUSHALL ""
+    # End of replica configuration
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.2.3
+    helm.sh/chart: redis-18.5.0
+  name: cvat-redis-configuration
+  namespace: default
+---
+apiVersion: v1
+data:
+  ping_liveness_local.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    [[ -n "$REDIS_PASSWORD" ]] && export REDISCLI_AUTH="$REDIS_PASSWORD"
+    response=$(
+      timeout -s 15 $1 \
+      redis-cli \
+        -h localhost \
+        -p $REDIS_PORT \
+        ping
+    )
+    if [ "$?" -eq "124" ]; then
+      echo "Timed out"
+      exit 1
+    fi
+    responseFirstWord=$(echo $response | head -n1 | awk '{print $1;}')
+    if [ "$response" != "PONG" ] && [ "$responseFirstWord" != "LOADING" ] && [ "$responseFirstWord" != "MASTERDOWN" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_liveness_local_and_master.sh: |-
+    script_dir="$(dirname "$0")"
+    exit_status=0
+    "$script_dir/ping_liveness_local.sh" $1 || exit_status=$?
+    "$script_dir/ping_liveness_master.sh" $1 || exit_status=$?
+    exit $exit_status
+  ping_liveness_master.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_MASTER_PASSWORD_FILE ]] && export REDIS_MASTER_PASSWORD="$(< "${REDIS_MASTER_PASSWORD_FILE}")"
+    [[ -n "$REDIS_MASTER_PASSWORD" ]] && export REDISCLI_AUTH="$REDIS_MASTER_PASSWORD"
+    response=$(
+      timeout -s 15 $1 \
+      redis-cli \
+        -h $REDIS_MASTER_HOST \
+        -p $REDIS_MASTER_PORT_NUMBER \
+        ping
+    )
+    if [ "$?" -eq "124" ]; then
+      echo "Timed out"
+      exit 1
+    fi
+    responseFirstWord=$(echo $response | head -n1 | awk '{print $1;}')
+    if [ "$response" != "PONG" ] && [ "$responseFirstWord" != "LOADING" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_readiness_local.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    [[ -n "$REDIS_PASSWORD" ]] && export REDISCLI_AUTH="$REDIS_PASSWORD"
+    response=$(
+      timeout -s 15 $1 \
+      redis-cli \
+        -h localhost \
+        -p $REDIS_PORT \
+        ping
+    )
+    if [ "$?" -eq "124" ]; then
+      echo "Timed out"
+      exit 1
+    fi
+    if [ "$response" != "PONG" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_readiness_local_and_master.sh: |-
+    script_dir="$(dirname "$0")"
+    exit_status=0
+    "$script_dir/ping_readiness_local.sh" $1 || exit_status=$?
+    "$script_dir/ping_readiness_master.sh" $1 || exit_status=$?
+    exit $exit_status
+  ping_readiness_master.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_MASTER_PASSWORD_FILE ]] && export REDIS_MASTER_PASSWORD="$(< "${REDIS_MASTER_PASSWORD_FILE}")"
+    [[ -n "$REDIS_MASTER_PASSWORD" ]] && export REDISCLI_AUTH="$REDIS_MASTER_PASSWORD"
+    response=$(
+      timeout -s 15 $1 \
+      redis-cli \
+        -h $REDIS_MASTER_HOST \
+        -p $REDIS_MASTER_PORT_NUMBER \
+        ping
+    )
+    if [ "$?" -eq "124" ]; then
+      echo "Timed out"
+      exit 1
+    fi
+    if [ "$response" != "PONG" ]; then
+      echo "$response"
+      exit 1
+    fi
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.2.3
+    helm.sh/chart: redis-18.5.0
+  name: cvat-redis-health
+  namespace: default
+---
+apiVersion: v1
+data:
+  start-master.sh: |
+    #!/bin/bash
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    if [[ -f /opt/bitnami/redis/mounted-etc/master.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/master.conf /opt/bitnami/redis/etc/master.conf
+    fi
+    if [[ -f /opt/bitnami/redis/mounted-etc/redis.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/redis.conf /opt/bitnami/redis/etc/redis.conf
+    fi
+    ARGS=("--port" "${REDIS_PORT}")
+    ARGS+=("--requirepass" "${REDIS_PASSWORD}")
+    ARGS+=("--masterauth" "${REDIS_PASSWORD}")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/redis.conf")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/master.conf")
+    exec redis-server "${ARGS[@]}"
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.2.3
+    helm.sh/chart: redis-18.5.0
+  name: cvat-redis-scripts
+  namespace: default
+---
+apiVersion: v1
+data:
+  all_events.json: |-
+    {
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": {
+              "type": "grafana",
+              "uid": "-- Grafana --"
+            },
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "target": {
+              "limit": 100,
+              "matchAny": false,
+              "tags": [],
+              "type": "dashboard"
+            },
+            "type": "dashboard"
+          }
+        ]
+      },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "links": [],
+      "liveNow": false,
+      "panels": [
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "PDEE91DDB90597936"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "continuous-GrYlRd"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "bars",
+                "fillOpacity": 90,
+                "gradientMode": "scheme",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "id": 2,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "builderOptions": {
+                "fields": [],
+                "filters": [],
+                "metrics": [
+                  {
+                    "aggregation": "count",
+                    "field": "*"
+                  }
+                ],
+                "mode": "trend",
+                "orderBy": [],
+                "table": "events",
+                "timeField": "timestamp",
+                "timeFieldType": "DateTime64(3, 'Etc/UTC')"
+              },
+              "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+              },
+              "format": 0,
+              "meta": {
+                "builderOptions": {
+                  "fields": [],
+                  "filters": [],
+                  "metrics": [
+                    {
+                      "aggregation": "count",
+                      "field": "*"
+                    }
+                  ],
+                  "mode": "trend",
+                  "orderBy": [],
+                  "table": "events",
+                  "timeField": "timestamp",
+                  "timeFieldType": "DateTime64(3, 'Etc/UTC')"
+                }
+              },
+              "queryType": "sql",
+              "rawSql": "SELECT $__timeInterval(timestamp) as time, count(*)\r\nFROM events\r\nWHERE $__timeFilter(timestamp)\r\nAND scope IN (${scopes})\r\nAND source IN (${sources})\r\nAND (-1 IN (${users}) OR user_id IN (${users}))\r\nAND (-1 IN (${organizations}) OR org_id IN (${organizations}))\r\nAND (-1 IN (${projects}) OR project_id IN (${projects}))\r\nAND (-1 IN (${tasks}) OR task_id IN (${tasks}))\r\nAND (-1 IN (${jobs}) OR job_id IN (${jobs}))\r\nGROUP BY time ORDER BY time ASC",
+              "refId": "A"
+            }
+          ],
+          "title": "Overall Activity",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "PDEE91DDB90597936"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "displayMode": "auto",
+                "inspect": true
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "timestamp"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 158
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 23,
+            "w": 24,
+            "x": 0,
+            "y": 7
+          },
+          "id": 4,
+          "options": {
+            "footer": {
+              "enablePagination": true,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true,
+            "sortBy": []
+          },
+          "pluginVersion": "9.3.6",
+          "targets": [
+            {
+              "builderOptions": {
+                "fields": [
+                  "*"
+                ],
+                "filters": [
+                  {
+                    "condition": "AND",
+                    "filterType": "custom",
+                    "key": "timestamp",
+                    "operator": "WITH IN DASHBOARD TIME RANGE",
+                    "type": "DateTime64(3, 'Etc/UTC')",
+                    "value": "TODAY"
+                  },
+                  {
+                    "condition": "AND",
+                    "filterType": "custom",
+                    "key": "scope",
+                    "operator": "IN",
+                    "type": "String",
+                    "value": [
+                      ""
+                    ]
+                  }
+                ],
+                "mode": "list",
+                "orderBy": [
+                  {
+                    "dir": "ASC",
+                    "name": "timestamp"
+                  }
+                ],
+                "table": "events"
+              },
+              "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+              },
+              "format": 1,
+              "meta": {
+                "builderOptions": {
+                  "fields": [
+                    "*"
+                  ],
+                  "filters": [
+                    {
+                      "condition": "AND",
+                      "filterType": "custom",
+                      "key": "timestamp",
+                      "operator": "WITH IN DASHBOARD TIME RANGE",
+                      "type": "DateTime64(3, 'Etc/UTC')",
+                      "value": "TODAY"
+                    },
+                    {
+                      "condition": "AND",
+                      "filterType": "custom",
+                      "key": "scope",
+                      "operator": "IN",
+                      "type": "String",
+                      "value": [
+                        ""
+                      ]
+                    }
+                  ],
+                  "mode": "list",
+                  "orderBy": [
+                    {
+                      "dir": "ASC",
+                      "name": "timestamp"
+                    }
+                  ],
+                  "table": "events"
+                }
+              },
+              "queryType": "sql",
+              "rawSql": "SELECT * \r\nFROM events \r\nWHERE $__timeFilter(timestamp)\r\n    AND scope IN (${scopes})\r\n    AND source IN (${sources})\r\n    AND (-1 IN (${users}) OR user_id IN (${users}))\r\n    AND (-1 IN (${organizations}) OR org_id IN (${organizations}))\r\n    AND (-1 IN (${projects}) OR project_id IN (${projects}))\r\n    AND (-1 IN (${tasks}) OR task_id IN (${tasks}))\r\n    AND (-1 IN (${jobs}) OR job_id IN (${jobs}))\r\nORDER BY timestamp DESC\r\nLIMIT 1000",
+              "refId": "A"
+            }
+          ],
+          "title": "All events",
+          "type": "table"
+        },
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "PDEE91DDB90597936"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisGridShow": false,
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "fillOpacity": 80,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineWidth": 0,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "percentage",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 12,
+            "x": 0,
+            "y": 30
+          },
+          "id": 6,
+          "options": {
+            "barRadius": 0,
+            "barWidth": 0.51,
+            "groupWidth": 0.7,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "orientation": "horizontal",
+            "showValue": "always",
+            "stacking": "none",
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            },
+            "xField": "browser",
+            "xTickLabelRotation": 0,
+            "xTickLabelSpacing": 0
+          },
+          "pluginVersion": "9.3.6",
+          "targets": [
+            {
+              "builderOptions": {
+                "fields": [],
+                "filters": [],
+                "limit": 100,
+                "mode": "list",
+                "orderBy": [],
+                "table": "events"
+              },
+              "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+              },
+              "format": 1,
+              "meta": {
+                "builderOptions": {
+                  "fields": [],
+                  "filters": [],
+                  "limit": 100,
+                  "mode": "list",
+                  "orderBy": [],
+                  "table": "events"
+                }
+              },
+              "queryType": "sql",
+              "rawSql": "SELECT\r\n    browser,\r\n    count()\r\nFROM\r\n(\r\n    SELECT\r\n        concat(JSON_VALUE(payload, '$.platform.name'), ' ', JSON_VALUE(payload, '$.platform.version')) AS browser,\r\n        user_id\r\n    FROM cvat.events\r\n    WHERE  $__timeFilter(timestamp) AND (scope = 'load:cvat') AND (browser != ' ')\r\n    GROUP BY\r\n        user_id,\r\n        browser\r\n)\r\nGROUP BY browser\r\nORDER BY count() DESC",
+              "refId": "A"
+            }
+          ],
+          "title": "Browser",
+          "type": "barchart"
+        },
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "PDEE91DDB90597936"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisGridShow": false,
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "fillOpacity": 80,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineWidth": 0,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "percentage",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 12,
+            "x": 12,
+            "y": 30
+          },
+          "id": 8,
+          "options": {
+            "barRadius": 0,
+            "barWidth": 0.51,
+            "groupWidth": 0.7,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "orientation": "horizontal",
+            "showValue": "always",
+            "stacking": "none",
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            },
+            "xField": "os",
+            "xTickLabelRotation": 0,
+            "xTickLabelSpacing": 0
+          },
+          "pluginVersion": "9.3.6",
+          "targets": [
+            {
+              "builderOptions": {
+                "fields": [],
+                "filters": [],
+                "limit": 100,
+                "mode": "list",
+                "orderBy": [],
+                "table": "events"
+              },
+              "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+              },
+              "format": 1,
+              "meta": {
+                "builderOptions": {
+                  "fields": [],
+                  "filters": [],
+                  "limit": 100,
+                  "mode": "list",
+                  "orderBy": [],
+                  "table": "events"
+                }
+              },
+              "queryType": "sql",
+              "rawSql": "SELECT\r\n    os,\r\n    count()\r\nFROM\r\n(\r\n    SELECT\r\n        JSON_VALUE(payload, '$.platform.os') AS os,\r\n        user_id\r\n    FROM cvat.events\r\n    WHERE  $__timeFilter(timestamp) AND (scope = 'load:cvat') AND (os != '')\r\n    GROUP BY\r\n        user_id,\r\n        os\r\n)\r\nGROUP BY os\r\nORDER BY count() DESC",
+              "refId": "A"
+            }
+          ],
+          "title": "OS",
+          "type": "barchart"
+        }
+      ],
+      "refresh": false,
+      "schemaVersion": 37,
+      "style": "dark",
+      "tags": [],
+      "templating": {
+        "list": [
+          {
+            "allValue": "",
+            "current": {
+              "selected": true,
+              "text": [
+                "All"
+              ],
+              "value": [
+                "$__all"
+              ]
+            },
+            "datasource": {
+              "type": "grafana-clickhouse-datasource",
+              "uid": "PDEE91DDB90597936"
+            },
+            "definition": "SELECT DISTINCT scope\nFROM events\nWHERE $__timeFilter(timestamp)",
+            "hide": 0,
+            "includeAll": true,
+            "label": "Scope",
+            "multi": true,
+            "name": "scopes",
+            "options": [],
+            "query": "SELECT DISTINCT scope\nFROM events\nWHERE $__timeFilter(timestamp)",
+            "refresh": 2,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 1,
+            "type": "query"
+          },
+          {
+            "allValue": "",
+            "current": {
+              "selected": true,
+              "text": [
+                "All"
+              ],
+              "value": [
+                "$__all"
+              ]
+            },
+            "datasource": {
+              "type": "grafana-clickhouse-datasource",
+              "uid": "PDEE91DDB90597936"
+            },
+            "definition": "SELECT DISTINCT source\nFROM events\nWHERE $__timeFilter(timestamp)",
+            "hide": 0,
+            "includeAll": true,
+            "label": "Source",
+            "multi": true,
+            "name": "sources",
+            "options": [],
+            "query": "SELECT DISTINCT source\nFROM events\nWHERE $__timeFilter(timestamp)",
+            "refresh": 2,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 0,
+            "type": "query"
+          },
+          {
+            "allValue": "-1",
+            "current": {
+              "selected": true,
+              "text": [
+                "All"
+              ],
+              "value": [
+                "$__all"
+              ]
+            },
+            "datasource": {
+              "type": "grafana-clickhouse-datasource",
+              "uid": "PDEE91DDB90597936"
+            },
+            "definition": "SELECT DISTINCT user_id\nFROM events\nWHERE $__timeFilter(timestamp)\n  AND user_id IS NOT NULL",
+            "hide": 0,
+            "includeAll": true,
+            "label": "User",
+            "multi": true,
+            "name": "users",
+            "options": [],
+            "query": "SELECT DISTINCT user_id\nFROM events\nWHERE $__timeFilter(timestamp)\n  AND user_id IS NOT NULL",
+            "refresh": 1,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 0,
+            "type": "query"
+          },
+          {
+            "allValue": "-1",
+            "current": {
+              "selected": true,
+              "text": [
+                "All"
+              ],
+              "value": [
+                "$__all"
+              ]
+            },
+            "datasource": {
+              "type": "grafana-clickhouse-datasource",
+              "uid": "PDEE91DDB90597936"
+            },
+            "definition": "SELECT DISTINCT project_id\nFROM events\nWHERE  $__timeFilter(timestamp)\n  AND project_id IS NOT NULL",
+            "hide": 0,
+            "includeAll": true,
+            "label": "Project",
+            "multi": true,
+            "name": "projects",
+            "options": [],
+            "query": "SELECT DISTINCT project_id\nFROM events\nWHERE  $__timeFilter(timestamp)\n  AND project_id IS NOT NULL",
+            "refresh": 1,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 0,
+            "type": "query"
+          },
+          {
+            "allValue": "-1",
+            "current": {
+              "selected": true,
+              "text": [
+                "All"
+              ],
+              "value": [
+                "$__all"
+              ]
+            },
+            "datasource": {
+              "type": "grafana-clickhouse-datasource",
+              "uid": "PDEE91DDB90597936"
+            },
+            "definition": "SELECT DISTINCT task_id\nFROM events\nWHERE $__timeFilter(timestamp) \n  AND task_id IS NOT NULL",
+            "hide": 0,
+            "includeAll": true,
+            "label": "Task",
+            "multi": true,
+            "name": "tasks",
+            "options": [],
+            "query": "SELECT DISTINCT task_id\nFROM events\nWHERE $__timeFilter(timestamp) \n  AND task_id IS NOT NULL",
+            "refresh": 1,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 0,
+            "type": "query"
+          },
+          {
+            "allValue": "-1",
+            "current": {
+              "selected": true,
+              "text": [
+                "All"
+              ],
+              "value": [
+                "$__all"
+              ]
+            },
+            "datasource": {
+              "type": "grafana-clickhouse-datasource",
+              "uid": "PDEE91DDB90597936"
+            },
+            "definition": "SELECT DISTINCT job_id\nFROM events\nWHERE $__timeFilter(timestamp)\n  AND job_id IS NOT NULL",
+            "hide": 0,
+            "includeAll": true,
+            "label": "Job",
+            "multi": true,
+            "name": "jobs",
+            "options": [],
+            "query": "SELECT DISTINCT job_id\nFROM events\nWHERE $__timeFilter(timestamp)\n  AND job_id IS NOT NULL",
+            "refresh": 1,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 0,
+            "type": "query"
+          },
+          {
+            "allValue": "-1",
+            "current": {
+              "selected": true,
+              "text": [
+                "All"
+              ],
+              "value": [
+                "$__all"
+              ]
+            },
+            "datasource": {
+              "type": "grafana-clickhouse-datasource",
+              "uid": "PDEE91DDB90597936"
+            },
+            "definition": "SELECT DISTINCT org_id\nFROM events\nWHERE $__timeFilter(timestamp)\nAND org_id IS NOT NULL",
+            "hide": 0,
+            "includeAll": true,
+            "label": "Organization",
+            "multi": true,
+            "name": "organizations",
+            "options": [],
+            "query": "SELECT DISTINCT org_id\nFROM events\nWHERE $__timeFilter(timestamp)\nAND org_id IS NOT NULL",
+            "refresh": 1,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 0,
+            "type": "query"
+          }
+        ]
+      },
+      "time": {
+        "from": "now-7d",
+        "to": "now"
+      },
+      "timepicker": {},
+      "timezone": "",
+      "title": "All events",
+      "uid": "EIGSTDAVz",
+      "version": 1,
+      "weekStart": ""
+    }
+  management.json: |-
+    {
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": {
+              "type": "grafana",
+              "uid": "-- Grafana --"
+            },
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "target": {
+              "limit": 100,
+              "matchAny": false,
+              "tags": [],
+              "type": "dashboard"
+            },
+            "type": "dashboard"
+          }
+        ]
+      },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "links": [],
+      "liveNow": false,
+      "panels": [
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "PDEE91DDB90597936"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 25,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "smooth",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "__systemRef": "hideSeriesFrom",
+                "matcher": {
+                  "id": "byNames",
+                  "options": {
+                    "mode": "exclude",
+                    "names": [
+                      "User 1"
+                    ],
+                    "prefix": "All except:",
+                    "readOnly": true
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": true
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 9,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "id": 6,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "9.3.6",
+          "targets": [
+            {
+              "builderOptions": {
+                "fields": [],
+                "filters": [],
+                "groupBy": [
+                  "user_id"
+                ],
+                "metrics": [
+                  {
+                    "aggregation": "count",
+                    "alias": "value",
+                    "field": "*"
+                  }
+                ],
+                "mode": "trend",
+                "orderBy": [],
+                "table": "events",
+                "timeField": "timestamp",
+                "timeFieldType": "DateTime64(3, 'Etc/UTC')"
+              },
+              "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+              },
+              "format": 0,
+              "hide": false,
+              "meta": {
+                "builderOptions": {
+                  "fields": [],
+                  "filters": [],
+                  "groupBy": [
+                    "user_id"
+                  ],
+                  "metrics": [
+                    {
+                      "aggregation": "count",
+                      "alias": "value",
+                      "field": "*"
+                    }
+                  ],
+                  "mode": "trend",
+                  "orderBy": [],
+                  "table": "events",
+                  "timeField": "timestamp",
+                  "timeFieldType": "DateTime64(3, 'Etc/UTC')"
+                }
+              },
+              "queryType": "sql",
+              "rawSql": "SELECT $__timeInterval(timestamp) as time, toString(user_id), count() as User\r\nFROM events\r\nWHERE $__timeFilter(timestamp)\r\nGROUP BY time, user_id\r\nORDER BY time ASC, user_id ASC",
+              "refId": "A"
+            }
+          ],
+          "title": "User Activity",
+          "transformations": [],
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "PDEE91DDB90597936"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "continuous-GrYlRd"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "bars",
+                "fillOpacity": 90,
+                "gradientMode": "scheme",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 24,
+            "x": 0,
+            "y": 9
+          },
+          "id": 4,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "builderOptions": {
+                "fields": [],
+                "filters": [],
+                "metrics": [
+                  {
+                    "aggregation": "count",
+                    "alias": "Count",
+                    "field": "*"
+                  }
+                ],
+                "mode": "trend",
+                "orderBy": [],
+                "table": "events",
+                "timeField": "timestamp",
+                "timeFieldType": "DateTime64(3, 'Etc/UTC')"
+              },
+              "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+              },
+              "format": 0,
+              "queryType": "builder",
+              "rawSql": "SELECT $__timeInterval(timestamp) as time,  count(*) Count FROM events WHERE $__timeFilter(timestamp) GROUP BY time ORDER BY time ASC",
+              "refId": "A"
+            }
+          ],
+          "title": "Overall Activity",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "PDEE91DDB90597936"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "displayMode": "auto",
+                "filterable": false,
+                "inspect": true
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 13,
+            "w": 24,
+            "x": 0,
+            "y": 16
+          },
+          "id": 2,
+          "options": {
+            "footer": {
+              "enablePagination": true,
+              "fields": [
+                "Working time(h)",
+                "Activity"
+              ],
+              "reducer": [
+                "sum"
+              ],
+              "show": true
+            },
+            "showHeader": true,
+            "sortBy": []
+          },
+          "pluginVersion": "9.3.6",
+          "targets": [
+            {
+              "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+              },
+              "format": 1,
+              "meta": {
+                "builderOptions": {
+                  "fields": [],
+                  "limit": 100,
+                  "mode": "list"
+                }
+              },
+              "queryType": "sql",
+              "rawSql": "SELECT\r\n  user_id as User,\r\n  project_id as Project,\r\n  task_id as Task,\r\n  job_id as Job, sum(JSONExtractUInt(payload, 'working_time')) / 1000 / 3600 as \"Working time(h)\",\r\n  count() as Activity\r\nFROM events\r\nWHERE JSONHas(payload, 'working_time')\r\n  AND $__timeFilter(timestamp)\r\n  AND user_id IN (${users})\r\n  AND (-1 IN (${projects}) OR project_id IN (${projects}))\r\n  AND task_id IN (${tasks})\r\n  AND job_id IN (${jobs})\r\nGROUP BY user_id, project_id, task_id, job_id",
+              "refId": "A"
+            }
+          ],
+          "title": "Working time",
+          "type": "table"
+        }
+      ],
+      "refresh": false,
+      "schemaVersion": 37,
+      "style": "dark",
+      "tags": [],
+      "templating": {
+        "list": [
+          {
+            "current": {
+              "selected": true,
+              "text": [
+                "All"
+              ],
+              "value": [
+                "$__all"
+              ]
+            },
+            "datasource": {
+              "type": "grafana-clickhouse-datasource",
+              "uid": "PDEE91DDB90597936"
+            },
+            "definition": "SELECT DISTINCT user_id\nFROM events\nWHERE $__timeFilter(timestamp)\n  AND source = 'client'",
+            "hide": 0,
+            "includeAll": true,
+            "label": "User",
+            "multi": true,
+            "name": "users",
+            "options": [],
+            "query": "SELECT DISTINCT user_id\nFROM events\nWHERE $__timeFilter(timestamp)\n  AND source = 'client'",
+            "refresh": 2,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 1,
+            "type": "query"
+          },
+          {
+            "allValue": "-1",
+            "current": {
+              "selected": true,
+              "text": [
+                "All"
+              ],
+              "value": [
+                "$__all"
+              ]
+            },
+            "datasource": {
+              "type": "grafana-clickhouse-datasource",
+              "uid": "PDEE91DDB90597936"
+            },
+            "definition": "SELECT DISTINCT project_id\nFROM events\nWHERE  $__timeFilter(timestamp)\n  AND project_id IS NOT NULL\n  AND source = 'client'",
+            "hide": 0,
+            "includeAll": true,
+            "label": "Project",
+            "multi": true,
+            "name": "projects",
+            "options": [],
+            "query": "SELECT DISTINCT project_id\nFROM events\nWHERE  $__timeFilter(timestamp)\n  AND project_id IS NOT NULL\n  AND source = 'client'",
+            "refresh": 2,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 1,
+            "type": "query"
+          },
+          {
+            "current": {
+              "selected": false,
+              "text": "All",
+              "value": "$__all"
+            },
+            "datasource": {
+              "type": "grafana-clickhouse-datasource",
+              "uid": "PDEE91DDB90597936"
+            },
+            "definition": "SELECT DISTINCT task_id\nFROM events\nWHERE $__timeFilter(timestamp) \n  AND task_id IS NOT NULL\n  AND source = 'client'\n  AND (-1 IN (${projects}) OR project_id IN (${projects}))",
+            "description": "",
+            "hide": 0,
+            "includeAll": true,
+            "label": "Task",
+            "multi": true,
+            "name": "tasks",
+            "options": [],
+            "query": "SELECT DISTINCT task_id\nFROM events\nWHERE $__timeFilter(timestamp) \n  AND task_id IS NOT NULL\n  AND source = 'client'\n  AND (-1 IN (${projects}) OR project_id IN (${projects}))",
+            "refresh": 2,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 1,
+            "type": "query"
+          },
+          {
+            "current": {
+              "selected": true,
+              "text": [
+                "All"
+              ],
+              "value": [
+                "$__all"
+              ]
+            },
+            "datasource": {
+              "type": "grafana-clickhouse-datasource",
+              "uid": "PDEE91DDB90597936"
+            },
+            "definition": "SELECT DISTINCT job_id\nFROM events\nWHERE $__timeFilter(timestamp)\n  AND job_id IS NOT NULL\n  AND source = 'client'\n  AND task_id in (${tasks})",
+            "hide": 0,
+            "includeAll": true,
+            "label": "Job",
+            "multi": true,
+            "name": "jobs",
+            "options": [],
+            "query": "SELECT DISTINCT job_id\nFROM events\nWHERE $__timeFilter(timestamp)\n  AND job_id IS NOT NULL\n  AND source = 'client'\n  AND task_id in (${tasks})",
+            "refresh": 2,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 0,
+            "type": "query"
+          }
+        ]
+      },
+      "time": {
+        "from": "now-7d",
+        "to": "now"
+      },
+      "timepicker": {},
+      "timezone": "",
+      "title": "Management",
+      "uid": "w0if6WAVz",
+      "version": 2,
+      "weekStart": ""
+    }
+  monitoring.json: |-
+    {
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": {
+              "type": "grafana",
+              "uid": "-- Grafana --"
+            },
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "target": {
+              "limit": 100,
+              "matchAny": false,
+              "tags": [],
+              "type": "dashboard"
+            },
+            "type": "dashboard"
+          }
+        ]
+      },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "links": [],
+      "liveNow": false,
+      "panels": [
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "PDEE91DDB90597936"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 3,
+            "x": 0,
+            "y": 0
+          },
+          "id": 12,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "pluginVersion": "9.3.6",
+          "targets": [
+            {
+              "builderOptions": {
+                "fields": [],
+                "filters": [],
+                "limit": 100,
+                "metrics": [
+                  {
+                    "aggregation": "count",
+                    "field": ""
+                  }
+                ],
+                "mode": "aggregate",
+                "orderBy": [],
+                "table": "events"
+              },
+              "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+              },
+              "format": 1,
+              "meta": {
+                "builderOptions": {
+                  "fields": [],
+                  "filters": [],
+                  "limit": 100,
+                  "metrics": [
+                    {
+                      "aggregation": "count",
+                      "field": ""
+                    }
+                  ],
+                  "mode": "aggregate",
+                  "orderBy": [],
+                  "table": "events"
+                }
+              },
+              "queryType": "sql",
+              "rawSql": "SELECT\r\n    uniqExact(user_id) as \"Active users (now)\"\r\nFROM\r\n    cvat.events\r\nWHERE\r\n    user_id IS NOT NULL AND\r\n    timestamp >= now() - INTERVAL 15 MINUTE",
+              "refId": "A"
+            }
+          ],
+          "title": "Active users (now)",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "PDEE91DDB90597936"
+          },
+          "description": "Show active users calculated by 15 minutes time interval",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "smooth",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 21,
+            "x": 3,
+            "y": 0
+          },
+          "id": 10,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+              },
+              "format": 1,
+              "meta": {
+                "builderOptions": {
+                  "fields": [],
+                  "limit": 100,
+                  "mode": "list"
+                }
+              },
+              "queryType": "sql",
+              "rawSql": "SELECT\r\n    time,\r\n    uniqExact(user_id) Users\r\nFROM\r\n(\r\n    SELECT\r\n      user_id,\r\n      toStartOfInterval(timestamp, INTERVAL 15 minute) as time\r\n    FROM cvat.events\r\n    WHERE\r\n      user_id IS NOT NULL\r\n    GROUP BY\r\n      user_id,\r\n      time\r\n    ORDER BY time ASC WITH FILL STEP toIntervalMinute(15)\r\n)\r\nGROUP BY time\r\nORDER BY time",
+              "refId": "A"
+            }
+          ],
+          "title": "Active users",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "PDEE91DDB90597936"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "displayMode": "auto",
+                "inspect": true
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 7
+          },
+          "id": 2,
+          "options": {
+            "footer": {
+              "enablePagination": true,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true
+          },
+          "pluginVersion": "9.3.6",
+          "targets": [
+            {
+              "builderOptions": {
+                "database": "cvat",
+                "fields": [
+                  "scope as Scope"
+                ],
+                "filters": [
+                  {
+                    "condition": "AND",
+                    "filterType": "custom",
+                    "key": "JSONHas",
+                    "operator": "",
+                    "type": "string",
+                    "value": ""
+                  },
+                  {
+                    "condition": "AND",
+                    "filterType": "custom",
+                    "key": "$__timeFilter",
+                    "operator": "",
+                    "type": "datetime",
+                    "value": ""
+                  },
+                  {
+                    "condition": "AND",
+                    "filterType": "custom",
+                    "key": "user_id",
+                    "operator": "IN",
+                    "type": "",
+                    "value": [
+                      "users"
+                    ]
+                  },
+                  {
+                    "condition": "AND",
+                    "filterType": "custom",
+                    "key": "1",
+                    "operator": "IN",
+                    "type": "",
+                    "value": [
+                      "projects",
+                      "OR",
+                      "project_id",
+                      "IN",
+                      "projects"
+                    ]
+                  },
+                  {
+                    "condition": "AND",
+                    "filterType": "custom",
+                    "key": "task_id",
+                    "operator": "IN",
+                    "type": "",
+                    "value": [
+                      "tasks"
+                    ]
+                  },
+                  {
+                    "condition": "AND",
+                    "filterType": "custom",
+                    "key": "job_id",
+                    "operator": "IN",
+                    "type": "",
+                    "value": [
+                      "jobs"
+                    ]
+                  },
+                  {
+                    "condition": "AND",
+                    "filterType": "custom",
+                    "key": "source",
+                    "operator": "=",
+                    "type": "string",
+                    "value": [
+                      "client"
+                    ]
+                  }
+                ],
+                "groupBy": [
+                  "user_id",
+                  "project_id",
+                  "task_id",
+                  "job_id"
+                ],
+                "limit": 100,
+                "metrics": [
+                  {
+                    "aggregation": "min",
+                    "alias": "working_time",
+                    "field": "JSONExtractUInt"
+                  },
+                  {
+                    "aggregation": "count",
+                    "alias": "Activity",
+                    "field": "as"
+                  }
+                ],
+                "mode": "aggregate",
+                "table": "events"
+              },
+              "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+              },
+              "format": 1,
+              "meta": {
+                "builderOptions": {
+                  "database": "cvat",
+                  "fields": [
+                    "scope as Scope"
+                  ],
+                  "filters": [
+                    {
+                      "condition": "AND",
+                      "filterType": "custom",
+                      "key": "JSONHas",
+                      "operator": "",
+                      "type": "string",
+                      "value": ""
+                    },
+                    {
+                      "condition": "AND",
+                      "filterType": "custom",
+                      "key": "$__timeFilter",
+                      "operator": "",
+                      "type": "datetime",
+                      "value": ""
+                    },
+                    {
+                      "condition": "AND",
+                      "filterType": "custom",
+                      "key": "user_id",
+                      "operator": "IN",
+                      "type": "",
+                      "value": [
+                        "users"
+                      ]
+                    },
+                    {
+                      "condition": "AND",
+                      "filterType": "custom",
+                      "key": "1",
+                      "operator": "IN",
+                      "type": "",
+                      "value": [
+                        "projects",
+                        "OR",
+                        "project_id",
+                        "IN",
+                        "projects"
+                      ]
+                    },
+                    {
+                      "condition": "AND",
+                      "filterType": "custom",
+                      "key": "task_id",
+                      "operator": "IN",
+                      "type": "",
+                      "value": [
+                        "tasks"
+                      ]
+                    },
+                    {
+                      "condition": "AND",
+                      "filterType": "custom",
+                      "key": "job_id",
+                      "operator": "IN",
+                      "type": "",
+                      "value": [
+                        "jobs"
+                      ]
+                    },
+                    {
+                      "condition": "AND",
+                      "filterType": "custom",
+                      "key": "source",
+                      "operator": "=",
+                      "type": "string",
+                      "value": [
+                        "client"
+                      ]
+                    }
+                  ],
+                  "groupBy": [
+                    "user_id",
+                    "project_id",
+                    "task_id",
+                    "job_id"
+                  ],
+                  "limit": 100,
+                  "metrics": [
+                    {
+                      "aggregation": "min",
+                      "alias": "working_time",
+                      "field": "JSONExtractUInt"
+                    },
+                    {
+                      "aggregation": "count",
+                      "alias": "Activity",
+                      "field": "as"
+                    }
+                  ],
+                  "mode": "aggregate",
+                  "table": "events"
+                }
+              },
+              "queryType": "sql",
+              "rawSql": "SELECT\r\n  scope as Scope,\r\n  source as Source,\r\n  avg(duration) as \"Average duration (ms)\",\r\n  min(duration) as \"Min duration (ms)\",\r\n  max(duration) as \"Max duration (ms)\"\r\nFROM events\r\nWHERE duration > 0\r\n  AND $__timeFilter(timestamp)\r\nGROUP BY scope, source",
+              "refId": "A"
+            }
+          ],
+          "title": "Duration of events",
+          "type": "table"
+        },
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "PDEE91DDB90597936"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "displayMode": "auto",
+                "inspect": true
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 7
+          },
+          "id": 4,
+          "options": {
+            "footer": {
+              "enablePagination": true,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true
+          },
+          "pluginVersion": "9.3.6",
+          "targets": [
+            {
+              "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+              },
+              "format": 1,
+              "meta": {
+                "builderOptions": {
+                  "fields": [],
+                  "limit": 100,
+                  "mode": "list"
+                }
+              },
+              "queryType": "sql",
+              "rawSql": "SELECT\r\n  scope as Scope,\r\n  source as Source,\r\n  count() as Count\r\nFROM events\r\nWHERE $__timeFilter(timestamp)\r\nGROUP BY scope, source",
+              "refId": "A"
+            }
+          ],
+          "title": "Number of events",
+          "type": "table"
+        },
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "PDEE91DDB90597936"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "bars",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 15
+          },
+          "id": 6,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "builderOptions": {
+                "fields": [],
+                "filters": [
+                  {
+                    "condition": "AND",
+                    "filterType": "custom",
+                    "key": "scope",
+                    "operator": "=",
+                    "type": "String",
+                    "value": "send:exception"
+                  },
+                  {
+                    "condition": "AND",
+                    "filterType": "custom",
+                    "key": "timestamp",
+                    "operator": "WITH IN DASHBOARD TIME RANGE",
+                    "type": "DateTime64(3, 'Etc/UTC')",
+                    "value": "TODAY"
+                  }
+                ],
+                "limit": 100,
+                "metrics": [
+                  {
+                    "aggregation": "count",
+                    "field": "*"
+                  }
+                ],
+                "mode": "trend",
+                "orderBy": [],
+                "table": "events",
+                "timeField": "timestamp",
+                "timeFieldType": "DateTime64(3, 'Etc/UTC')"
+              },
+              "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+              },
+              "format": 0,
+              "meta": {
+                "builderOptions": {
+                  "fields": [],
+                  "filters": [
+                    {
+                      "condition": "AND",
+                      "filterType": "custom",
+                      "key": "scope",
+                      "operator": "=",
+                      "type": "String",
+                      "value": "send:exception"
+                    },
+                    {
+                      "condition": "AND",
+                      "filterType": "custom",
+                      "key": "timestamp",
+                      "operator": "WITH IN DASHBOARD TIME RANGE",
+                      "type": "DateTime64(3, 'Etc/UTC')",
+                      "value": "TODAY"
+                    }
+                  ],
+                  "limit": 100,
+                  "metrics": [
+                    {
+                      "aggregation": "count",
+                      "field": "*"
+                    }
+                  ],
+                  "mode": "trend",
+                  "orderBy": [],
+                  "table": "events",
+                  "timeField": "timestamp",
+                  "timeFieldType": "DateTime64(3, 'Etc/UTC')"
+                }
+              },
+              "queryType": "sql",
+              "rawSql": "SELECT\r\n  $__timeInterval(timestamp) as time,\r\n  count(*)\r\nFROM events\r\nWHERE\r\n  $__timeFilter(timestamp)\r\n  AND ( scope = 'send:exception' )\r\n  AND ( timestamp  >= $__fromTime AND timestamp <= $__toTime )\r\n  AND source IN (${sources})\r\n  AND (-1 IN (${users}) OR user_id IN (${users}))\r\n  AND (-1 IN (${organizations}) OR org_id IN (${organizations}))\r\n  AND (-1 IN (${projects}) OR project_id IN (${projects}))\r\n  AND (-1 IN (${tasks}) OR task_id IN (${tasks}))\r\n  AND (-1 IN (${jobs}) OR job_id IN (${jobs}))\r\nGROUP BY time\r\nORDER BY time",
+              "refId": "A"
+            }
+          ],
+          "title": "Exceptions",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "PDEE91DDB90597936"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "displayMode": "auto",
+                "filterable": true,
+                "inspect": true,
+                "minWidth": 80
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "user_id"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 28
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "source"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 68
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "project_id"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 61
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "task_id"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 75
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "job_id"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 55
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "user_name"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 115
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "timestamp"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 153
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "error"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 452
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 17,
+            "w": 24,
+            "x": 0,
+            "y": 23
+          },
+          "id": 8,
+          "options": {
+            "footer": {
+              "enablePagination": true,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true,
+            "sortBy": []
+          },
+          "pluginVersion": "9.3.6",
+          "targets": [
+            {
+              "builderOptions": {
+                "fields": [
+                  "user_id",
+                  "project_id",
+                  "task_id",
+                  "job_id",
+                  "payload"
+                ],
+                "filters": [
+                  {
+                    "condition": "AND",
+                    "filterType": "custom",
+                    "key": "timestamp",
+                    "operator": "WITH IN DASHBOARD TIME RANGE",
+                    "type": "DateTime64(3, 'Etc/UTC')",
+                    "value": "TODAY"
+                  },
+                  {
+                    "condition": "AND",
+                    "filterType": "custom",
+                    "key": "scope",
+                    "operator": "=",
+                    "type": "String",
+                    "value": "send:exception"
+                  }
+                ],
+                "mode": "list",
+                "orderBy": [],
+                "table": "events",
+                "timeField": "timestamp",
+                "timeFieldType": "DateTime64(3, 'Etc/UTC')"
+              },
+              "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+              },
+              "format": 1,
+              "meta": {
+                "builderOptions": {
+                  "fields": [
+                    "user_id",
+                    "project_id",
+                    "task_id",
+                    "job_id",
+                    "payload"
+                  ],
+                  "filters": [
+                    {
+                      "condition": "AND",
+                      "filterType": "custom",
+                      "key": "timestamp",
+                      "operator": "WITH IN DASHBOARD TIME RANGE",
+                      "type": "DateTime64(3, 'Etc/UTC')",
+                      "value": "TODAY"
+                    },
+                    {
+                      "condition": "AND",
+                      "filterType": "custom",
+                      "key": "scope",
+                      "operator": "=",
+                      "type": "String",
+                      "value": "send:exception"
+                    }
+                  ],
+                  "mode": "list",
+                  "orderBy": [],
+                  "table": "events",
+                  "timeField": "timestamp",
+                  "timeFieldType": "DateTime64(3, 'Etc/UTC')"
+                }
+              },
+              "queryType": "sql",
+              "rawSql": "SELECT\r\n  timestamp,\r\n  user_id,\r\n  user_name,\r\n  source,\r\n  project_id,\r\n  task_id,\r\n  job_id,\r\n  JSONExtractString(payload, 'message') as error,\r\n  JSONExtractString(payload, 'stack') as stack,\r\n  payload\r\nFROM events\r\nWHERE\r\n  ( timestamp  >= $__fromTime AND timestamp <= $__toTime )\r\n  AND scope = 'send:exception'\r\n  AND source IN (${sources})\r\n  AND (-1 IN (${users}) OR user_id IN (${users}))\r\n  AND (-1 IN (${organizations}) OR org_id IN (${organizations}))\r\n  AND (-1 IN (${projects}) OR project_id IN (${projects}))\r\n  AND (-1 IN (${tasks}) OR task_id IN (${tasks}))\r\n  AND (-1 IN (${jobs}) OR job_id IN (${jobs}))\r\n  AND ('-1' IN (${errors}) OR error IN (${errors}))\r\nORDER BY timestamp DESC\r\nLIMIT 1000",
+              "refId": "A"
+            }
+          ],
+          "title": "Exceptions table",
+          "type": "table"
+        }
+      ],
+      "refresh": "",
+      "schemaVersion": 37,
+      "style": "dark",
+      "tags": [],
+      "templating": {
+        "list": [
+          {
+            "current": {
+              "selected": true,
+              "text": [
+                "All"
+              ],
+              "value": [
+                "$__all"
+              ]
+            },
+            "datasource": {
+              "type": "grafana-clickhouse-datasource",
+              "uid": "PDEE91DDB90597936"
+            },
+            "definition": "SELECT DISTINCT source\nFROM events\nWHERE $__timeFilter(timestamp)",
+            "hide": 0,
+            "includeAll": true,
+            "label": "Source",
+            "multi": true,
+            "name": "sources",
+            "options": [],
+            "query": "SELECT DISTINCT source\nFROM events\nWHERE $__timeFilter(timestamp)",
+            "refresh": 2,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 0,
+            "type": "query"
+          },
+          {
+            "allValue": "-1",
+            "current": {
+              "selected": true,
+              "text": [
+                "All"
+              ],
+              "value": [
+                "$__all"
+              ]
+            },
+            "datasource": {
+              "type": "grafana-clickhouse-datasource",
+              "uid": "PDEE91DDB90597936"
+            },
+            "definition": "SELECT DISTINCT user_id\nFROM events\nWHERE $__timeFilter(timestamp)\n  AND user_id IS NOT NULL",
+            "hide": 0,
+            "includeAll": true,
+            "label": "User",
+            "multi": true,
+            "name": "users",
+            "options": [],
+            "query": "SELECT DISTINCT user_id\nFROM events\nWHERE $__timeFilter(timestamp)\n  AND user_id IS NOT NULL",
+            "refresh": 2,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 0,
+            "type": "query"
+          },
+          {
+            "allValue": "-1",
+            "current": {
+              "selected": true,
+              "text": [
+                "All"
+              ],
+              "value": [
+                "$__all"
+              ]
+            },
+            "datasource": {
+              "type": "grafana-clickhouse-datasource",
+              "uid": "PDEE91DDB90597936"
+            },
+            "definition": "SELECT DISTINCT project_id\nFROM events\nWHERE  $__timeFilter(timestamp)\n  AND project_id IS NOT NULL",
+            "hide": 0,
+            "includeAll": true,
+            "label": "Project",
+            "multi": true,
+            "name": "projects",
+            "options": [],
+            "query": "SELECT DISTINCT project_id\nFROM events\nWHERE  $__timeFilter(timestamp)\n  AND project_id IS NOT NULL",
+            "refresh": 2,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 0,
+            "type": "query"
+          },
+          {
+            "allValue": "-1",
+            "current": {
+              "selected": true,
+              "text": [
+                "All"
+              ],
+              "value": [
+                "$__all"
+              ]
+            },
+            "datasource": {
+              "type": "grafana-clickhouse-datasource",
+              "uid": "PDEE91DDB90597936"
+            },
+            "definition": "SELECT DISTINCT task_id\nFROM events\nWHERE $__timeFilter(timestamp) \n  AND task_id IS NOT NULL",
+            "hide": 0,
+            "includeAll": true,
+            "label": "Task",
+            "multi": true,
+            "name": "tasks",
+            "options": [],
+            "query": "SELECT DISTINCT task_id\nFROM events\nWHERE $__timeFilter(timestamp) \n  AND task_id IS NOT NULL",
+            "refresh": 2,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 0,
+            "type": "query"
+          },
+          {
+            "allValue": "-1",
+            "current": {
+              "selected": true,
+              "text": [
+                "All"
+              ],
+              "value": [
+                "$__all"
+              ]
+            },
+            "datasource": {
+              "type": "grafana-clickhouse-datasource",
+              "uid": "PDEE91DDB90597936"
+            },
+            "definition": "SELECT DISTINCT job_id\nFROM events\nWHERE $__timeFilter(timestamp)\n  AND job_id IS NOT NULL",
+            "hide": 0,
+            "includeAll": true,
+            "label": "Job",
+            "multi": true,
+            "name": "jobs",
+            "options": [],
+            "query": "SELECT DISTINCT job_id\nFROM events\nWHERE $__timeFilter(timestamp)\n  AND job_id IS NOT NULL",
+            "refresh": 2,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 0,
+            "type": "query"
+          },
+          {
+            "allValue": "-1",
+            "current": {
+              "selected": true,
+              "text": [
+                "All"
+              ],
+              "value": [
+                "$__all"
+              ]
+            },
+            "datasource": {
+              "type": "grafana-clickhouse-datasource",
+              "uid": "PDEE91DDB90597936"
+            },
+            "definition": "SELECT DISTINCT org_id\nFROM events\nWHERE $__timeFilter(timestamp)\nAND org_id IS NOT NULL",
+            "hide": 0,
+            "includeAll": true,
+            "label": "Organization",
+            "multi": true,
+            "name": "organizations",
+            "options": [],
+            "query": "SELECT DISTINCT org_id\nFROM events\nWHERE $__timeFilter(timestamp)\nAND org_id IS NOT NULL",
+            "refresh": 2,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 0,
+            "type": "query"
+          },
+          {
+            "allValue": "'-1'",
+            "current": {
+              "selected": true,
+              "text": [
+                "All"
+              ],
+              "value": [
+                "$__all"
+              ]
+            },
+            "datasource": {
+              "type": "grafana-clickhouse-datasource",
+              "uid": "PDEE91DDB90597936"
+            },
+            "definition": "SELECT\n  DISTINCT JSONExtractString(payload, 'message')\n  FROM cvat.events\nWHERE $__timeFilter(timestamp)\n  AND JSONHas(payload, 'message')\n  AND scope='send:exception'",
+            "hide": 0,
+            "includeAll": true,
+            "label": "Error message",
+            "multi": true,
+            "name": "errors",
+            "options": [],
+            "query": "SELECT\n  DISTINCT JSONExtractString(payload, 'message')\n  FROM cvat.events\nWHERE $__timeFilter(timestamp)\n  AND JSONHas(payload, 'message')\n  AND scope='send:exception'",
+            "refresh": 2,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 0,
+            "type": "query"
+          }
+        ]
+      },
+      "time": {
+        "from": "now-7d",
+        "to": "now"
+      },
+      "timepicker": {},
+      "timezone": "",
+      "title": "Monitoring",
+      "uid": "WvDvWK04k",
+      "version": 3,
+      "weekStart": ""
+    }
+immutable: false
+kind: ConfigMap
+metadata:
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+    tier: grafana
+  name: cvat-grafana-dashboards
+  namespace: default
+---
+apiVersion: v1
+data:
+  vector.toml: |
+    [sources.http-events]
+    type = "http_server"
+    address = "0.0.0.0:80"
+    encoding = "json"
+
+    # Uncomment for debug
+    # [sinks.console]
+    # type = "console"
+    # inputs = [ "http-events" ]
+    # target = "stdout"
+
+    # [sinks.console.encoding]
+    # codec = "json"
+
+    [sinks.clickhouse]
+    inputs = [ "http-events" ]
+    type = "clickhouse"
+    database = "${CLICKHOUSE_DB}"
+    table = "events"
+    auth.strategy = "basic"
+    auth.user = "${CLICKHOUSE_USER}"
+    auth.password = "${CLICKHOUSE_PASSWORD}"
+    endpoint = "http://${CLICKHOUSE_HOST}:${CLICKHOUSE_PORT}"
+    request.concurrency = "adaptive"
+    encoding.only_fields = [
+        "scope",
+        "obj_name",
+        "obj_id",
+        "obj_val",
+        "source",
+        "timestamp",
+        "count",
+        "duration",
+        "project_id",
+        "task_id",
+        "job_id",
+        "user_id",
+        "user_name",
+        "user_email",
+        "org_id",
+        "org_slug",
+        "payload",
+    ]
+immutable: false
+kind: ConfigMap
+metadata:
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+    tier: vector
+  name: cvat-vector-config
+  namespace: default
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+    tier: backend
+  name: cvat-backend-data
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/version: 10.1.5
+    helm.sh/chart: grafana-6.60.6
+  name: cvat-grafana-clusterrole
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/instance: cvat-default
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: traefik
+    helm.sh/chart: traefik-34.4.1
+  name: cvat-traefik-default
+rules:
+  - resources:
+      - nodes
+    verbs:
+      - get
+      - list
+      - watch
+  - resources:
+      - services
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - discovery.k8s.io
+    resources:
+      - endpointslices
+    verbs:
+      - list
+      - watch
+  - resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - extensions
+      - networking.k8s.io
+    resources:
+      - ingressclasses
+      - ingresses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - extensions
+      - networking.k8s.io
+    resources:
+      - ingresses/status
+    verbs:
+      - update
+  - apiGroups:
+      - traefik.io
+    resources:
+      - ingressroutes
+      - ingressroutetcps
+      - ingressrouteudps
+      - middlewares
+      - middlewaretcps
+      - serverstransports
+      - serverstransporttcps
+      - tlsoptions
+      - tlsstores
+      - traefikservices
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/version: 10.1.5
+    helm.sh/chart: grafana-6.60.6
+  name: cvat-grafana-clusterrolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cvat-grafana-clusterrole
+subjects:
+  - kind: ServiceAccount
+    name: cvat-grafana
+    namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/instance: cvat-default
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: traefik
+    helm.sh/chart: traefik-34.4.1
+  name: cvat-traefik-default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cvat-traefik-default
+subjects:
+  - kind: ServiceAccount
+    name: cvat-traefik
+    namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/version: 10.1.5
+    helm.sh/chart: grafana-6.60.6
+  name: cvat-grafana
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/version: 10.1.5
+    helm.sh/chart: grafana-6.60.6
+  name: cvat-grafana
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: cvat-grafana
+subjects:
+  - kind: ServiceAccount
+    name: cvat-grafana
+    namespace: default
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: clickhouse
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: clickhouse
+    app.kubernetes.io/version: 23.12.2
+    helm.sh/chart: clickhouse-4.1.16
+  name: cvat-clickhouse-headless
+  namespace: default
+spec:
+  clusterIP: None
+  ports:
+    - name: http
+      port: 8123
+      targetPort: http
+    - name: tcp
+      port: 9000
+      targetPort: tcp
+    - name: tcp-mysql
+      port: 9004
+      targetPort: tcp-mysql
+    - name: tcp-postgresql
+      port: 9005
+      targetPort: tcp-postgresql
+    - name: http-intersrv
+      port: 9009
+      targetPort: http-intersrv
+  publishNotReadyAddresses: true
+  selector:
+    app.kubernetes.io/component: clickhouse
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/name: clickhouse
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: clickhouse
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: clickhouse
+    app.kubernetes.io/version: 23.12.2
+    helm.sh/chart: clickhouse-4.1.16
+  name: cvat-clickhouse
+  namespace: default
+spec:
+  ports:
+    - name: http
+      nodePort: null
+      port: 8123
+      targetPort: http
+    - name: tcp
+      nodePort: null
+      port: 9000
+      targetPort: tcp
+    - name: tcp-mysql
+      nodePort: null
+      port: 9004
+      targetPort: tcp-mysql
+    - name: tcp-postgresql
+      nodePort: null
+      port: 9005
+      targetPort: tcp-postgresql
+    - name: http-intersrv
+      nodePort: null
+      port: 9009
+      targetPort: http-intersrv
+  selector:
+    app.kubernetes.io/component: clickhouse
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/name: clickhouse
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/version: 10.1.5
+    helm.sh/chart: grafana-6.60.6
+  name: cvat-grafana
+  namespace: default
+spec:
+  ports:
+    - name: service
+      port: 80
+      targetPort: 3000
+  selector:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/name: grafana
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: primary
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/version: 15.2.0
+    helm.sh/chart: postgresql-12.1.15
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+  name: cvat-postgresql-hl
+  namespace: default
+spec:
+  clusterIP: None
+  ports:
+    - name: tcp-postgresql
+      port: 5432
+      targetPort: tcp-postgresql
+  publishNotReadyAddresses: true
+  selector:
+    app.kubernetes.io/component: primary
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/name: postgresql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: primary
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/version: 15.2.0
+    helm.sh/chart: postgresql-12.1.15
+  name: cvat-postgresql
+  namespace: default
+spec:
+  ports:
+    - name: tcp-postgresql
+      nodePort: null
+      port: 5432
+      targetPort: tcp-postgresql
+  selector:
+    app.kubernetes.io/component: primary
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/name: postgresql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations: null
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.2.3
+    helm.sh/chart: redis-18.5.0
+  name: cvat-redis-headless
+  namespace: default
+spec:
+  clusterIP: None
+  ports:
+    - name: tcp-redis
+      port: 6379
+      targetPort: redis
+  selector:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/name: redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: master
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.2.3
+    helm.sh/chart: redis-18.5.0
+  name: cvat-redis-master
+  namespace: default
+spec:
+  internalTrafficPolicy: Cluster
+  ports:
+    - name: tcp-redis
+      nodePort: null
+      port: 6379
+      targetPort: redis
+  selector:
+    app.kubernetes.io/component: master
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/name: redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations: null
+  labels:
+    app.kubernetes.io/instance: cvat-default
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: traefik
+    helm.sh/chart: traefik-34.4.1
+  name: cvat-traefik
+  namespace: default
+spec:
+  ports:
+    - name: web
+      port: 80
+      targetPort: web
+    - name: websecure
+      port: 443
+      targetPort: websecure
+  selector:
+    app.kubernetes.io/instance: cvat-default
+    app.kubernetes.io/name: traefik
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations: null
+  labels:
+    app.kubernetes.io/component: Aggregator
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: vector
+    app.kubernetes.io/version: 0.26.0-alpine
+    helm.sh/chart: vector-0.19.2
+  name: cvat-vector-headless
+spec:
+  clusterIP: None
+  ports:
+    - name: http
+      port: 80
+  selector:
+    app.kubernetes.io/component: Aggregator
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/name: vector
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations: null
+  labels:
+    app.kubernetes.io/component: Aggregator
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: vector
+    app.kubernetes.io/version: 0.26.0-alpine
+    helm.sh/chart: vector-0.19.2
+  name: cvat-vector
+spec:
+  ports:
+    - name: http
+      port: 80
+  selector:
+    app.kubernetes.io/component: Aggregator
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/name: vector
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations: null
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+    tier: backend
+  name: cvat-backend-service
+  namespace: default
+spec:
+  ports:
+    - name: http
+      port: 8080
+  selector:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    component: server
+    helm.sh/chart: cvat
+    tier: backend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations: null
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+    tier: frontend
+  name: cvat-frontend-service
+  namespace: default
+spec:
+  ports:
+    - name: http
+      port: 80
+  selector:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+    tier: frontend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+    tier: kvrocks
+  name: cvat-kvrocks
+  namespace: default
+spec:
+  ports:
+    - name: redis
+      port: 6666
+      targetPort: kvrocks
+  selector:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+    tier: kvrocks
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+    tier: opa
+  name: opa
+  namespace: default
+spec:
+  ports:
+    - name: http
+      port: 8181
+  selector:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+    tier: opa
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/version: 10.1.5
+    helm.sh/chart: grafana-6.60.6
+  name: cvat-grafana
+  namespace: default
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: cvat
+      app.kubernetes.io/name: grafana
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        checksum/config: 99c2547e78f42c47c92a94ea2d7691af53eeb0bd9a1c0f0e51009b8d403b34c5
+        checksum/dashboards-json-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/sc-dashboard-provider-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/secret: 0fe421f8ea1b40fb948ea0857d5555755add796246de49e64de941dcb37d65f8
+        kubectl.kubernetes.io/default-container: grafana
+      labels:
+        app.kubernetes.io/instance: cvat
+        app.kubernetes.io/name: grafana
+    spec:
+      automountServiceAccountToken: true
+      containers:
+        - env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: GF_SECURITY_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  key: admin-user
+                  name: cvat-grafana
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: admin-password
+                  name: cvat-grafana
+            - name: GF_INSTALL_PLUGINS
+              valueFrom:
+                configMapKeyRef:
+                  key: plugins
+                  name: cvat-grafana
+            - name: GF_PATHS_DATA
+              value: /var/lib/grafana/
+            - name: GF_PATHS_LOGS
+              value: /var/log/grafana
+            - name: GF_PATHS_PLUGINS
+              value: /var/lib/grafana/plugins
+            - name: GF_PATHS_PROVISIONING
+              value: /etc/grafana/provisioning
+          envFrom:
+            - secretRef:
+                name: cvat-analytics-secret
+          image: docker.io/grafana/grafana:10.1.5
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 10
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 60
+            timeoutSeconds: 30
+          name: grafana
+          ports:
+            - containerPort: 3000
+              name: grafana
+              protocol: TCP
+            - containerPort: 9094
+              name: gossip-tcp
+              protocol: TCP
+            - containerPort: 9094
+              name: gossip-udp
+              protocol: UDP
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - mountPath: /etc/grafana/grafana.ini
+              name: config
+              subPath: grafana.ini
+            - mountPath: /var/lib/grafana
+              name: storage
+            - mountPath: /var/lib/grafana/dashboards/default
+              name: dashboards-default
+            - mountPath: /etc/grafana/provisioning/datasources/datasources.yaml
+              name: config
+              subPath: datasources.yaml
+            - mountPath: /etc/grafana/provisioning/dashboards/dashboardproviders.yaml
+              name: config
+              subPath: dashboardproviders.yaml
+      enableServiceLinks: true
+      securityContext:
+        fsGroup: 472
+        runAsGroup: 472
+        runAsNonRoot: true
+        runAsUser: 472
+      serviceAccountName: cvat-grafana
+      volumes:
+        - configMap:
+            name: cvat-grafana
+          name: config
+        - configMap:
+            name: cvat-grafana-dashboards
+          name: dashboards-default
+        - name: storage
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations: null
+  labels:
+    app.kubernetes.io/instance: cvat-default
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: traefik
+    helm.sh/chart: traefik-34.4.1
+  name: cvat-traefik
+  namespace: default
+spec:
+  minReadySeconds: 0
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: cvat-default
+      app.kubernetes.io/name: traefik
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "9100"
+        prometheus.io/scrape: "true"
+      labels:
+        app.kubernetes.io/instance: cvat-default
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: traefik
+        helm.sh/chart: traefik-34.4.1
+    spec:
+      automountServiceAccountToken: true
+      containers:
+        - args:
+            - --global.checknewversion
+            - --global.sendanonymoususage
+            - --entryPoints.metrics.address=:9100/tcp
+            - --entryPoints.traefik.address=:8080/tcp
+            - --entryPoints.web.address=:8000/tcp
+            - --entryPoints.websecure.address=:8443/tcp
+            - --api.dashboard=true
+            - --ping=true
+            - --metrics.prometheus=true
+            - --metrics.prometheus.entrypoint=metrics
+            - --providers.kubernetescrd
+            - --providers.kubernetescrd.allowEmptyServices=true
+            - --providers.kubernetesingress
+            - --providers.kubernetesingress.allowEmptyServices=true
+            - --providers.kubernetesingress.ingressendpoint.publishedservice=default/cvat-traefik
+            - --entryPoints.websecure.http.tls=true
+            - --log.format=json
+            - --log.level=INFO
+            - --accesslog=true
+            - --accesslog.format=json
+            - --accesslog.fields.defaultmode=drop
+            - --accesslog.fields.names.ClientHost=keep
+            - --accesslog.fields.names.DownstreamContentSize=keep
+            - --accesslog.fields.names.DownstreamStatus=keep
+            - --accesslog.fields.names.Duration=keep
+            - --accesslog.fields.names.RequestHost=keep
+            - --accesslog.fields.names.RequestMethod=keep
+            - --accesslog.fields.names.RequestPath=keep
+            - --accesslog.fields.names.RequestPort=keep
+            - --accesslog.fields.names.RequestProtocol=keep
+            - --accesslog.fields.names.RouterName=keep
+            - --accesslog.fields.names.StartUTC=keep
+            - --accesslog.fields.headers.defaultmode=drop
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          image: docker.io/traefik:v3.3.4
+          imagePullPolicy: IfNotPresent
+          lifecycle: null
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ping
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 2
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+          name: cvat-traefik
+          ports:
+            - containerPort: 9100
+              name: metrics
+              protocol: TCP
+            - containerPort: 8080
+              name: traefik
+              protocol: TCP
+            - containerPort: 8000
+              name: web
+              protocol: TCP
+            - containerPort: 8443
+              name: websecure
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 1
+            httpGet:
+              path: /ping
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 2
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+          resources: null
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - mountPath: /data
+              name: data
+            - mountPath: /tmp
+              name: tmp
+      hostNetwork: false
+      securityContext:
+        runAsGroup: 65532
+        runAsNonRoot: true
+        runAsUser: 65532
+      serviceAccountName: cvat-traefik
+      terminationGracePeriodSeconds: 60
+      volumes:
+        - name: data
+        - name: tmp
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    component: server
+    helm.sh/chart: cvat
+    tier: backend
+  name: cvat-backend-server
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-app
+      app.kubernetes.io/instance: cvat
+      app.kubernetes.io/name: cvat
+      component: server
+      tier: backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: cvat-app
+        app.kubernetes.io/instance: cvat
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: cvat
+        app.kubernetes.io/version: latest
+        component: server
+        helm.sh/chart: cvat
+        tier: backend
+    spec:
+      containers:
+        - args:
+            - run
+            - server
+          env:
+            - name: ALLOWED_HOSTS
+              value: "*"
+            - name: CVAT_REDIS_INMEM_HOST
+              value: cvat-redis-master
+            - name: CVAT_REDIS_INMEM_PORT
+              value: "6379"
+            - name: CVAT_REDIS_INMEM_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-redis-secret
+            - name: CVAT_REDIS_ONDISK_HOST
+              value: cvat-kvrocks
+            - name: CVAT_REDIS_ONDISK_PORT
+              value: "6666"
+            - name: CVAT_REDIS_ONDISK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-kvrocks-secret
+            - name: CVAT_POSTGRES_HOST
+              value: cvat-postgresql
+            - name: CVAT_POSTGRES_PORT
+              value: "5432"
+            - name: CVAT_POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: cvat-postgres-secret
+            - name: CVAT_POSTGRES_DBNAME
+              valueFrom:
+                secretKeyRef:
+                  key: database
+                  name: cvat-postgres-secret
+            - name: CVAT_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-postgres-secret
+            - name: CVAT_ANALYTICS
+              value: "1"
+            - name: DJANGO_LOG_SERVER_HOST
+              value: cvat-vector
+            - name: DJANGO_LOG_SERVER_PORT
+              value: "80"
+            - name: CLICKHOUSE_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_HOST
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_PORT
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_DB
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_DB
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_USER
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_USER
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_PASSWORD
+                  name: cvat-analytics-secret
+            - name: SMOKESCREEN_OPTS
+          image: cvat/server:dev
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /api/server/about
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 15
+          name: cvat-backend
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /api/server/about
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 15
+          volumeMounts:
+            - mountPath: /home/django/data
+              name: cvat-backend-data
+              subPath: data
+            - mountPath: /home/django/keys
+              name: cvat-backend-data
+              subPath: keys
+            - mountPath: /home/django/logs
+              name: cvat-backend-data
+              subPath: logs
+            - mountPath: /home/django/models
+              name: cvat-backend-data
+              subPath: models
+      initContainers:
+        - command:
+            - /bin/chmod
+            - -R
+            - "777"
+            - /home/django
+          image: busybox
+          name: user-data-permission-fix
+          volumeMounts:
+            - mountPath: /home/django/data
+              name: cvat-backend-data
+              subPath: data
+            - mountPath: /home/django/keys
+              name: cvat-backend-data
+              subPath: keys
+            - mountPath: /home/django/logs
+              name: cvat-backend-data
+              subPath: logs
+            - mountPath: /home/django/models
+              name: cvat-backend-data
+              subPath: models
+      serviceAccountName: default
+      volumes:
+        - name: cvat-backend-data
+          persistentVolumeClaim:
+            claimName: cvat-backend-data
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    component: worker-annotation
+    helm.sh/chart: cvat
+    tier: backend
+  name: cvat-backend-worker-annotation
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-app
+      app.kubernetes.io/instance: cvat
+      app.kubernetes.io/name: cvat
+      component: worker-annotation
+      tier: backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: cvat-app
+        app.kubernetes.io/instance: cvat
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: cvat
+        app.kubernetes.io/version: latest
+        component: worker-annotation
+        helm.sh/chart: cvat
+        tier: backend
+    spec:
+      containers:
+        - args:
+            - run
+            - worker
+            - annotation
+          env:
+            - name: CVAT_REDIS_INMEM_HOST
+              value: cvat-redis-master
+            - name: CVAT_REDIS_INMEM_PORT
+              value: "6379"
+            - name: CVAT_REDIS_INMEM_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-redis-secret
+            - name: CVAT_REDIS_ONDISK_HOST
+              value: cvat-kvrocks
+            - name: CVAT_REDIS_ONDISK_PORT
+              value: "6666"
+            - name: CVAT_REDIS_ONDISK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-kvrocks-secret
+            - name: CVAT_POSTGRES_HOST
+              value: cvat-postgresql
+            - name: CVAT_POSTGRES_PORT
+              value: "5432"
+            - name: CVAT_POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: cvat-postgres-secret
+            - name: CVAT_POSTGRES_DBNAME
+              valueFrom:
+                secretKeyRef:
+                  key: database
+                  name: cvat-postgres-secret
+            - name: CVAT_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-postgres-secret
+            - name: CVAT_ANALYTICS
+              value: "1"
+            - name: DJANGO_LOG_SERVER_HOST
+              value: cvat-vector
+            - name: DJANGO_LOG_SERVER_PORT
+              value: "80"
+            - name: CLICKHOUSE_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_HOST
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_PORT
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_DB
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_DB
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_USER
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_USER
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_PASSWORD
+                  name: cvat-analytics-secret
+            - name: SMOKESCREEN_OPTS
+          image: cvat/server:dev
+          imagePullPolicy: Always
+          livenessProbe:
+            exec:
+              command:
+                - python
+                - manage.py
+                - workerprobe
+                - annotation
+            initialDelaySeconds: 30
+            periodSeconds: 120
+            timeoutSeconds: 10
+          name: cvat-backend
+          volumeMounts:
+            - mountPath: /home/django/data
+              name: cvat-backend-data
+              subPath: data
+            - mountPath: /home/django/keys
+              name: cvat-backend-data
+              subPath: keys
+            - mountPath: /home/django/logs
+              name: cvat-backend-data
+              subPath: logs
+            - mountPath: /home/django/models
+              name: cvat-backend-data
+              subPath: models
+            - mountPath: /home/django/tmp_storage
+              name: cvat-backend-data
+              subPath: tmp_storage
+      initContainers:
+        - command:
+            - /bin/chmod
+            - -R
+            - "777"
+            - /home/django
+          image: busybox
+          name: user-data-permission-fix
+          volumeMounts:
+            - mountPath: /home/django/data
+              name: cvat-backend-data
+              subPath: data
+            - mountPath: /home/django/keys
+              name: cvat-backend-data
+              subPath: keys
+            - mountPath: /home/django/logs
+              name: cvat-backend-data
+              subPath: logs
+            - mountPath: /home/django/models
+              name: cvat-backend-data
+              subPath: models
+      serviceAccountName: default
+      volumes:
+        - name: cvat-backend-data
+          persistentVolumeClaim:
+            claimName: cvat-backend-data
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    component: worker-chunks
+    helm.sh/chart: cvat
+    tier: backend
+  name: cvat-backend-worker-chunks
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cvat-app
+      app.kubernetes.io/instance: cvat
+      app.kubernetes.io/name: cvat
+      component: worker-chunks
+      tier: backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: cvat-app
+        app.kubernetes.io/instance: cvat
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: cvat
+        app.kubernetes.io/version: latest
+        component: worker-chunks
+        helm.sh/chart: cvat
+        tier: backend
+    spec:
+      containers:
+        - args:
+            - run
+            - worker
+            - chunks
+          env:
+            - name: CVAT_REDIS_INMEM_HOST
+              value: cvat-redis-master
+            - name: CVAT_REDIS_INMEM_PORT
+              value: "6379"
+            - name: CVAT_REDIS_INMEM_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-redis-secret
+            - name: CVAT_REDIS_ONDISK_HOST
+              value: cvat-kvrocks
+            - name: CVAT_REDIS_ONDISK_PORT
+              value: "6666"
+            - name: CVAT_REDIS_ONDISK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-kvrocks-secret
+            - name: CVAT_POSTGRES_HOST
+              value: cvat-postgresql
+            - name: CVAT_POSTGRES_PORT
+              value: "5432"
+            - name: CVAT_POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: cvat-postgres-secret
+            - name: CVAT_POSTGRES_DBNAME
+              valueFrom:
+                secretKeyRef:
+                  key: database
+                  name: cvat-postgres-secret
+            - name: CVAT_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-postgres-secret
+            - name: CVAT_ANALYTICS
+              value: "1"
+            - name: DJANGO_LOG_SERVER_HOST
+              value: cvat-vector
+            - name: DJANGO_LOG_SERVER_PORT
+              value: "80"
+            - name: CLICKHOUSE_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_HOST
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_PORT
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_DB
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_DB
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_USER
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_USER
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_PASSWORD
+                  name: cvat-analytics-secret
+            - name: SMOKESCREEN_OPTS
+          image: cvat/server:dev
+          imagePullPolicy: Always
+          livenessProbe:
+            exec:
+              command:
+                - python
+                - manage.py
+                - workerprobe
+                - chunks
+            initialDelaySeconds: 30
+            periodSeconds: 120
+            timeoutSeconds: 10
+          name: cvat-backend
+          volumeMounts:
+            - mountPath: /home/django/data
+              name: cvat-backend-data
+              subPath: data
+            - mountPath: /home/django/logs
+              name: cvat-backend-data
+              subPath: logs
+      serviceAccountName: default
+      volumes:
+        - name: cvat-backend-data
+          persistentVolumeClaim:
+            claimName: cvat-backend-data
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    component: worker-consensus
+    helm.sh/chart: cvat
+    tier: backend
+  name: cvat-backend-worker-consensus
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-app
+      app.kubernetes.io/instance: cvat
+      app.kubernetes.io/name: cvat
+      component: worker-consensus
+      tier: backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: cvat-app
+        app.kubernetes.io/instance: cvat
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: cvat
+        app.kubernetes.io/version: latest
+        component: worker-consensus
+        helm.sh/chart: cvat
+        tier: backend
+    spec:
+      containers:
+        - args:
+            - run
+            - worker
+            - consensus
+          env:
+            - name: CVAT_REDIS_INMEM_HOST
+              value: cvat-redis-master
+            - name: CVAT_REDIS_INMEM_PORT
+              value: "6379"
+            - name: CVAT_REDIS_INMEM_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-redis-secret
+            - name: CVAT_REDIS_ONDISK_HOST
+              value: cvat-kvrocks
+            - name: CVAT_REDIS_ONDISK_PORT
+              value: "6666"
+            - name: CVAT_REDIS_ONDISK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-kvrocks-secret
+            - name: CVAT_POSTGRES_HOST
+              value: cvat-postgresql
+            - name: CVAT_POSTGRES_PORT
+              value: "5432"
+            - name: CVAT_POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: cvat-postgres-secret
+            - name: CVAT_POSTGRES_DBNAME
+              valueFrom:
+                secretKeyRef:
+                  key: database
+                  name: cvat-postgres-secret
+            - name: CVAT_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-postgres-secret
+            - name: CVAT_ANALYTICS
+              value: "1"
+            - name: DJANGO_LOG_SERVER_HOST
+              value: cvat-vector
+            - name: DJANGO_LOG_SERVER_PORT
+              value: "80"
+            - name: CLICKHOUSE_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_HOST
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_PORT
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_DB
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_DB
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_USER
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_USER
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_PASSWORD
+                  name: cvat-analytics-secret
+            - name: SMOKESCREEN_OPTS
+          image: cvat/server:dev
+          imagePullPolicy: Always
+          livenessProbe:
+            exec:
+              command:
+                - python
+                - manage.py
+                - workerprobe
+                - consensus
+            initialDelaySeconds: 30
+            periodSeconds: 120
+            timeoutSeconds: 10
+          name: cvat-backend
+      serviceAccountName: default
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    component: worker-export
+    helm.sh/chart: cvat
+    tier: backend
+  name: cvat-backend-worker-export
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cvat-app
+      app.kubernetes.io/instance: cvat
+      app.kubernetes.io/name: cvat
+      component: worker-export
+      tier: backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: cvat-app
+        app.kubernetes.io/instance: cvat
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: cvat
+        app.kubernetes.io/version: latest
+        component: worker-export
+        helm.sh/chart: cvat
+        tier: backend
+    spec:
+      containers:
+        - args:
+            - run
+            - worker
+            - export
+          env:
+            - name: CVAT_REDIS_INMEM_HOST
+              value: cvat-redis-master
+            - name: CVAT_REDIS_INMEM_PORT
+              value: "6379"
+            - name: CVAT_REDIS_INMEM_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-redis-secret
+            - name: CVAT_REDIS_ONDISK_HOST
+              value: cvat-kvrocks
+            - name: CVAT_REDIS_ONDISK_PORT
+              value: "6666"
+            - name: CVAT_REDIS_ONDISK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-kvrocks-secret
+            - name: CVAT_POSTGRES_HOST
+              value: cvat-postgresql
+            - name: CVAT_POSTGRES_PORT
+              value: "5432"
+            - name: CVAT_POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: cvat-postgres-secret
+            - name: CVAT_POSTGRES_DBNAME
+              valueFrom:
+                secretKeyRef:
+                  key: database
+                  name: cvat-postgres-secret
+            - name: CVAT_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-postgres-secret
+            - name: CVAT_ANALYTICS
+              value: "1"
+            - name: DJANGO_LOG_SERVER_HOST
+              value: cvat-vector
+            - name: DJANGO_LOG_SERVER_PORT
+              value: "80"
+            - name: CLICKHOUSE_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_HOST
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_PORT
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_DB
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_DB
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_USER
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_USER
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_PASSWORD
+                  name: cvat-analytics-secret
+            - name: SMOKESCREEN_OPTS
+          image: cvat/server:dev
+          imagePullPolicy: Always
+          livenessProbe:
+            exec:
+              command:
+                - python
+                - manage.py
+                - workerprobe
+                - export
+            initialDelaySeconds: 30
+            periodSeconds: 120
+            timeoutSeconds: 10
+          name: cvat-backend
+          volumeMounts:
+            - mountPath: /home/django/data
+              name: cvat-backend-data
+              subPath: data
+            - mountPath: /home/django/keys
+              name: cvat-backend-data
+              subPath: keys
+            - mountPath: /home/django/logs
+              name: cvat-backend-data
+              subPath: logs
+            - mountPath: /home/django/models
+              name: cvat-backend-data
+              subPath: models
+            - mountPath: /home/django/tmp_storage
+              name: cvat-backend-data
+              subPath: tmp_storage
+      initContainers:
+        - command:
+            - /bin/chmod
+            - -R
+            - "777"
+            - /home/django
+          image: busybox
+          name: user-data-permission-fix
+          volumeMounts:
+            - mountPath: /home/django/data
+              name: cvat-backend-data
+              subPath: data
+            - mountPath: /home/django/keys
+              name: cvat-backend-data
+              subPath: keys
+            - mountPath: /home/django/logs
+              name: cvat-backend-data
+              subPath: logs
+            - mountPath: /home/django/models
+              name: cvat-backend-data
+              subPath: models
+      serviceAccountName: default
+      volumes:
+        - name: cvat-backend-data
+          persistentVolumeClaim:
+            claimName: cvat-backend-data
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    component: worker-import
+    helm.sh/chart: cvat
+    tier: backend
+  name: cvat-backend-worker-import
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cvat-app
+      app.kubernetes.io/instance: cvat
+      app.kubernetes.io/name: cvat
+      component: worker-import
+      tier: backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: cvat-app
+        app.kubernetes.io/instance: cvat
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: cvat
+        app.kubernetes.io/version: latest
+        component: worker-import
+        helm.sh/chart: cvat
+        tier: backend
+    spec:
+      containers:
+        - args:
+            - run
+            - worker
+            - import
+          env:
+            - name: CVAT_REDIS_INMEM_HOST
+              value: cvat-redis-master
+            - name: CVAT_REDIS_INMEM_PORT
+              value: "6379"
+            - name: CVAT_REDIS_INMEM_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-redis-secret
+            - name: CVAT_REDIS_ONDISK_HOST
+              value: cvat-kvrocks
+            - name: CVAT_REDIS_ONDISK_PORT
+              value: "6666"
+            - name: CVAT_REDIS_ONDISK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-kvrocks-secret
+            - name: CVAT_POSTGRES_HOST
+              value: cvat-postgresql
+            - name: CVAT_POSTGRES_PORT
+              value: "5432"
+            - name: CVAT_POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: cvat-postgres-secret
+            - name: CVAT_POSTGRES_DBNAME
+              valueFrom:
+                secretKeyRef:
+                  key: database
+                  name: cvat-postgres-secret
+            - name: CVAT_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-postgres-secret
+            - name: CVAT_ANALYTICS
+              value: "1"
+            - name: DJANGO_LOG_SERVER_HOST
+              value: cvat-vector
+            - name: DJANGO_LOG_SERVER_PORT
+              value: "80"
+            - name: CLICKHOUSE_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_HOST
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_PORT
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_DB
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_DB
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_USER
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_USER
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_PASSWORD
+                  name: cvat-analytics-secret
+            - name: SMOKESCREEN_OPTS
+          image: cvat/server:dev
+          imagePullPolicy: Always
+          livenessProbe:
+            exec:
+              command:
+                - python
+                - manage.py
+                - workerprobe
+                - import
+            initialDelaySeconds: 30
+            periodSeconds: 120
+            timeoutSeconds: 10
+          name: cvat-backend
+          volumeMounts:
+            - mountPath: /home/django/data
+              name: cvat-backend-data
+              subPath: data
+            - mountPath: /home/django/keys
+              name: cvat-backend-data
+              subPath: keys
+            - mountPath: /home/django/logs
+              name: cvat-backend-data
+              subPath: logs
+            - mountPath: /home/django/models
+              name: cvat-backend-data
+              subPath: models
+            - mountPath: /home/django/tmp_storage
+              name: cvat-backend-data
+              subPath: tmp_storage
+      initContainers:
+        - command:
+            - /bin/chmod
+            - -R
+            - "777"
+            - /home/django
+          image: busybox
+          name: user-data-permission-fix
+          volumeMounts:
+            - mountPath: /home/django/data
+              name: cvat-backend-data
+              subPath: data
+            - mountPath: /home/django/keys
+              name: cvat-backend-data
+              subPath: keys
+            - mountPath: /home/django/logs
+              name: cvat-backend-data
+              subPath: logs
+            - mountPath: /home/django/models
+              name: cvat-backend-data
+              subPath: models
+      serviceAccountName: default
+      volumes:
+        - name: cvat-backend-data
+          persistentVolumeClaim:
+            claimName: cvat-backend-data
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    component: worker-qualityreports
+    helm.sh/chart: cvat
+    tier: backend
+  name: cvat-backend-worker-qualityreports
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-app
+      app.kubernetes.io/instance: cvat
+      app.kubernetes.io/name: cvat
+      component: worker-qualityreports
+      tier: backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: cvat-app
+        app.kubernetes.io/instance: cvat
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: cvat
+        app.kubernetes.io/version: latest
+        component: worker-qualityreports
+        helm.sh/chart: cvat
+        tier: backend
+    spec:
+      containers:
+        - args:
+            - run
+            - worker
+            - quality_reports
+          env:
+            - name: CVAT_REDIS_INMEM_HOST
+              value: cvat-redis-master
+            - name: CVAT_REDIS_INMEM_PORT
+              value: "6379"
+            - name: CVAT_REDIS_INMEM_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-redis-secret
+            - name: CVAT_REDIS_ONDISK_HOST
+              value: cvat-kvrocks
+            - name: CVAT_REDIS_ONDISK_PORT
+              value: "6666"
+            - name: CVAT_REDIS_ONDISK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-kvrocks-secret
+            - name: CVAT_POSTGRES_HOST
+              value: cvat-postgresql
+            - name: CVAT_POSTGRES_PORT
+              value: "5432"
+            - name: CVAT_POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: cvat-postgres-secret
+            - name: CVAT_POSTGRES_DBNAME
+              valueFrom:
+                secretKeyRef:
+                  key: database
+                  name: cvat-postgres-secret
+            - name: CVAT_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-postgres-secret
+            - name: CVAT_ANALYTICS
+              value: "1"
+            - name: DJANGO_LOG_SERVER_HOST
+              value: cvat-vector
+            - name: DJANGO_LOG_SERVER_PORT
+              value: "80"
+            - name: CLICKHOUSE_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_HOST
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_PORT
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_DB
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_DB
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_USER
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_USER
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_PASSWORD
+                  name: cvat-analytics-secret
+            - name: SMOKESCREEN_OPTS
+          image: cvat/server:dev
+          imagePullPolicy: Always
+          livenessProbe:
+            exec:
+              command:
+                - python
+                - manage.py
+                - workerprobe
+                - quality_reports
+            initialDelaySeconds: 30
+            periodSeconds: 120
+            timeoutSeconds: 10
+          name: cvat-backend
+      serviceAccountName: default
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    component: worker-utils
+    helm.sh/chart: cvat
+    tier: backend
+  name: cvat-backend-worker-utils
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-app
+      app.kubernetes.io/instance: cvat
+      app.kubernetes.io/name: cvat
+      component: worker-utils
+      tier: backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: cvat-app
+        app.kubernetes.io/instance: cvat
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: cvat
+        app.kubernetes.io/version: latest
+        component: worker-utils
+        helm.sh/chart: cvat
+        tier: backend
+    spec:
+      containers:
+        - args:
+            - run
+            - worker
+            - notifications
+            - cleaning
+          env:
+            - name: CVAT_REDIS_INMEM_HOST
+              value: cvat-redis-master
+            - name: CVAT_REDIS_INMEM_PORT
+              value: "6379"
+            - name: CVAT_REDIS_INMEM_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-redis-secret
+            - name: CVAT_REDIS_ONDISK_HOST
+              value: cvat-kvrocks
+            - name: CVAT_REDIS_ONDISK_PORT
+              value: "6666"
+            - name: CVAT_REDIS_ONDISK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-kvrocks-secret
+            - name: CVAT_POSTGRES_HOST
+              value: cvat-postgresql
+            - name: CVAT_POSTGRES_PORT
+              value: "5432"
+            - name: CVAT_POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: cvat-postgres-secret
+            - name: CVAT_POSTGRES_DBNAME
+              valueFrom:
+                secretKeyRef:
+                  key: database
+                  name: cvat-postgres-secret
+            - name: CVAT_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-postgres-secret
+            - name: CVAT_ANALYTICS
+              value: "1"
+            - name: DJANGO_LOG_SERVER_HOST
+              value: cvat-vector
+            - name: DJANGO_LOG_SERVER_PORT
+              value: "80"
+            - name: CLICKHOUSE_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_HOST
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_PORT
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_DB
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_DB
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_USER
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_USER
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_PASSWORD
+                  name: cvat-analytics-secret
+            - name: SMOKESCREEN_OPTS
+          image: cvat/server:dev
+          imagePullPolicy: Always
+          livenessProbe:
+            exec:
+              command:
+                - python
+                - manage.py
+                - workerprobe
+                - notifications
+                - cleaning
+            initialDelaySeconds: 30
+            periodSeconds: 120
+            timeoutSeconds: 10
+          name: cvat-backend
+          volumeMounts:
+            - mountPath: /home/django/data
+              name: cvat-backend-data
+              subPath: data
+            - mountPath: /home/django/keys
+              name: cvat-backend-data
+              subPath: keys
+            - mountPath: /home/django/logs
+              name: cvat-backend-data
+              subPath: logs
+            - mountPath: /home/django/models
+              name: cvat-backend-data
+              subPath: models
+      initContainers:
+        - command:
+            - /bin/chmod
+            - -R
+            - "777"
+            - /home/django
+          image: busybox
+          name: user-data-permission-fix
+          volumeMounts:
+            - mountPath: /home/django/data
+              name: cvat-backend-data
+              subPath: data
+            - mountPath: /home/django/keys
+              name: cvat-backend-data
+              subPath: keys
+            - mountPath: /home/django/logs
+              name: cvat-backend-data
+              subPath: logs
+            - mountPath: /home/django/models
+              name: cvat-backend-data
+              subPath: models
+      serviceAccountName: default
+      volumes:
+        - name: cvat-backend-data
+          persistentVolumeClaim:
+            claimName: cvat-backend-data
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    component: worker-webhooks
+    helm.sh/chart: cvat
+    tier: backend
+  name: cvat-backend-worker-webhooks
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-app
+      app.kubernetes.io/instance: cvat
+      app.kubernetes.io/name: cvat
+      component: worker-webhooks
+      tier: backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: cvat-app
+        app.kubernetes.io/instance: cvat
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: cvat
+        app.kubernetes.io/version: latest
+        component: worker-webhooks
+        helm.sh/chart: cvat
+        tier: backend
+    spec:
+      containers:
+        - args:
+            - run
+            - worker
+            - webhooks
+          env:
+            - name: CVAT_REDIS_INMEM_HOST
+              value: cvat-redis-master
+            - name: CVAT_REDIS_INMEM_PORT
+              value: "6379"
+            - name: CVAT_REDIS_INMEM_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-redis-secret
+            - name: CVAT_REDIS_ONDISK_HOST
+              value: cvat-kvrocks
+            - name: CVAT_REDIS_ONDISK_PORT
+              value: "6666"
+            - name: CVAT_REDIS_ONDISK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-kvrocks-secret
+            - name: CVAT_POSTGRES_HOST
+              value: cvat-postgresql
+            - name: CVAT_POSTGRES_PORT
+              value: "5432"
+            - name: CVAT_POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: cvat-postgres-secret
+            - name: CVAT_POSTGRES_DBNAME
+              valueFrom:
+                secretKeyRef:
+                  key: database
+                  name: cvat-postgres-secret
+            - name: CVAT_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-postgres-secret
+            - name: CVAT_ANALYTICS
+              value: "1"
+            - name: DJANGO_LOG_SERVER_HOST
+              value: cvat-vector
+            - name: DJANGO_LOG_SERVER_PORT
+              value: "80"
+            - name: CLICKHOUSE_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_HOST
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_PORT
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_DB
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_DB
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_USER
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_USER
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_PASSWORD
+                  name: cvat-analytics-secret
+            - name: SMOKESCREEN_OPTS
+          image: cvat/server:dev
+          imagePullPolicy: Always
+          livenessProbe:
+            exec:
+              command:
+                - python
+                - manage.py
+                - workerprobe
+                - webhooks
+            initialDelaySeconds: 30
+            periodSeconds: 120
+            timeoutSeconds: 10
+          name: cvat-backend
+      serviceAccountName: default
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+    tier: frontend
+  name: cvat-frontend
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-app
+      app.kubernetes.io/instance: cvat
+      app.kubernetes.io/name: cvat
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: cvat-app
+        app.kubernetes.io/instance: cvat
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: cvat
+        app.kubernetes.io/version: latest
+        helm.sh/chart: cvat
+        tier: frontend
+    spec:
+      containers:
+        - image: cvat/ui:dev
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 5
+            periodSeconds: 10
+            tcpSocket:
+              port: 80
+          name: cvat-frontend-app-container
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            failureThreshold: 5
+            periodSeconds: 10
+            tcpSocket:
+              port: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+    tier: opa
+  name: cvat-opa
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-app
+      app.kubernetes.io/instance: cvat
+      app.kubernetes.io/name: cvat
+      tier: opa
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: cvat-app
+        app.kubernetes.io/instance: cvat
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: cvat
+        app.kubernetes.io/version: latest
+        helm.sh/chart: cvat
+        tier: opa
+    spec:
+      containers:
+        - args:
+            - run
+            - --server
+            - --set=decision_logs.console=true
+            - --set=services.cvat.url=http://cvat-backend-service:8080
+            - --set=bundles.cvat.service=cvat
+            - --set=bundles.cvat.resource=/api/auth/rules
+            - --set=bundles.cvat.polling.min_delay_seconds=10
+            - --set=bundles.cvat.polling.max_delay_seconds=15
+          image: openpolicyagent/opa:0.63.0
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            httpGet:
+              path: /health?bundles
+              port: 8181
+            initialDelaySeconds: 15
+            periodSeconds: 15
+          name: cvat-opa-app-container
+          ports:
+            - containerPort: 8181
+          readinessProbe:
+            httpGet:
+              path: /health?bundles
+              port: 8181
+            initialDelaySeconds: 15
+            periodSeconds: 15
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/component: clickhouse
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: clickhouse
+    app.kubernetes.io/version: 23.12.2
+    helm.sh/chart: clickhouse-4.1.16
+  name: cvat-clickhouse-shard0
+  namespace: default
+spec:
+  podManagementPolicy: Parallel
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: clickhouse
+      app.kubernetes.io/instance: cvat
+      app.kubernetes.io/name: clickhouse
+  serviceName: cvat-clickhouse-headless
+  template:
+    metadata:
+      annotations:
+        checksum/config: c71cf41aa467748e33d1237a9bd7fa74a7e627a295c0cde96292c0f91d15b27f
+        checksum/config-extra: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/config-users-extra: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+      labels:
+        app.kubernetes.io/component: clickhouse
+        app.kubernetes.io/instance: cvat
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: clickhouse
+        app.kubernetes.io/version: 23.12.2
+        helm.sh/chart: clickhouse-4.1.16
+        shard: "0"
+    spec:
+      affinity:
+        nodeAffinity: null
+        podAffinity: null
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/component: clickhouse
+                    app.kubernetes.io/instance: cvat
+                    app.kubernetes.io/name: clickhouse
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+      containers:
+        - command:
+            - /scripts/setup.sh
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: CLICKHOUSE_HTTP_PORT
+              value: "8123"
+            - name: CLICKHOUSE_TCP_PORT
+              value: "9000"
+            - name: CLICKHOUSE_MYSQL_PORT
+              value: "9004"
+            - name: CLICKHOUSE_POSTGRESQL_PORT
+              value: "9005"
+            - name: CLICKHOUSE_INTERSERVER_HTTP_PORT
+              value: "9009"
+            - name: CLICKHOUSE_ADMIN_USER
+              value: user
+            - name: CLICKHOUSE_SHARD_ID
+              value: shard0
+            - name: CLICKHOUSE_REPLICA_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: CLICKHOUSE_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_PASSWORD
+                  name: cvat-analytics-secret
+          envFrom:
+            - secretRef:
+                name: cvat-analytics-secret
+          image: docker.io/bitnami/clickhouse:23.12.2-debian-11-r0
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ping
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: clickhouse
+          ports:
+            - containerPort: 8123
+              name: http
+            - containerPort: 9000
+              name: tcp
+            - containerPort: 9005
+              name: tcp-postgresql
+            - containerPort: 9004
+              name: tcp-mysql
+            - containerPort: 9009
+              name: http-intersrv
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ping
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1001
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - mountPath: /scripts/setup.sh
+              name: scripts
+              subPath: setup.sh
+            - mountPath: /bitnami/clickhouse
+              name: data
+            - mountPath: /bitnami/clickhouse/etc/conf.d/default
+              name: config
+            - mountPath: /docker-entrypoint-initdb.d
+              name: custom-init-scripts
+      initContainers: null
+      securityContext:
+        fsGroup: 1001
+      serviceAccountName: cvat-clickhouse
+      volumes:
+        - configMap:
+            defaultMode: 493
+            name: cvat-clickhouse-scripts
+          name: scripts
+        - configMap:
+            name: cvat-clickhouse
+          name: config
+        - name: custom-init-scripts
+          secret:
+            secretName: cvat-clickhouse-init
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+    - metadata:
+        labels:
+          app.kubernetes.io/component: clickhouse
+          app.kubernetes.io/instance: cvat
+          app.kubernetes.io/name: clickhouse
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 8Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/component: primary
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/version: 15.2.0
+    helm.sh/chart: postgresql-12.1.15
+  name: cvat-postgresql
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: primary
+      app.kubernetes.io/instance: cvat
+      app.kubernetes.io/name: postgresql
+  serviceName: cvat-postgresql-hl
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: primary
+        app.kubernetes.io/instance: cvat
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: postgresql
+        app.kubernetes.io/version: 15.2.0
+        helm.sh/chart: postgresql-12.1.15
+      name: cvat-postgresql
+    spec:
+      affinity:
+        nodeAffinity: null
+        podAffinity: null
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/component: primary
+                    app.kubernetes.io/instance: cvat
+                    app.kubernetes.io/name: postgresql
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+      containers:
+        - env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: POSTGRESQL_PORT_NUMBER
+              value: "5432"
+            - name: POSTGRESQL_VOLUME_DIR
+              value: /bitnami/postgresql
+            - name: PGDATA
+              value: /bitnami/postgresql/data
+            - name: POSTGRES_USER
+              value: cvat
+            - name: POSTGRES_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: postgres-password
+                  name: cvat-postgres-secret
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-postgres-secret
+            - name: POSTGRES_DB
+              value: cvat
+            - name: POSTGRESQL_ENABLE_LDAP
+              value: "no"
+            - name: POSTGRESQL_ENABLE_TLS
+              value: "no"
+            - name: POSTGRESQL_LOG_HOSTNAME
+              value: "false"
+            - name: POSTGRESQL_LOG_CONNECTIONS
+              value: "false"
+            - name: POSTGRESQL_LOG_DISCONNECTIONS
+              value: "false"
+            - name: POSTGRESQL_PGAUDIT_LOG_CATALOG
+              value: "off"
+            - name: POSTGRESQL_CLIENT_MIN_MESSAGES
+              value: error
+            - name: POSTGRESQL_SHARED_PRELOAD_LIBRARIES
+              value: pgaudit
+          image: docker.io/bitnami/postgresql:15.2.0-debian-11-r0
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - exec pg_isready -U "cvat" -d "dbname=cvat" -h 127.0.0.1 -p 5432
+            failureThreshold: 6
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: postgresql
+          ports:
+            - containerPort: 5432
+              name: tcp-postgresql
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - -e
+                - |
+                  exec pg_isready -U "cvat" -d "dbname=cvat" -h 127.0.0.1 -p 5432
+                  [ -f /opt/bitnami/postgresql/tmp/.initialized ] || [ -f /bitnami/postgresql/.initialized ]
+            failureThreshold: 6
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+          securityContext:
+            runAsUser: 1001
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: dshm
+            - mountPath: /bitnami/postgresql
+              name: data
+      hostIPC: false
+      hostNetwork: false
+      securityContext:
+        fsGroup: 1001
+      serviceAccountName: default
+      volumes:
+        - emptyDir:
+            medium: Memory
+          name: dshm
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 8Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/component: master
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.2.3
+    helm.sh/chart: redis-18.5.0
+  name: cvat-redis-master
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: master
+      app.kubernetes.io/instance: cvat
+      app.kubernetes.io/name: redis
+  serviceName: cvat-redis-headless
+  template:
+    metadata:
+      annotations:
+        checksum/configmap: 86bcc953bb473748a3d3dc60b7c11f34e60c93519234d4c37f42e22ada559d47
+        checksum/health: aff24913d801436ea469d8d374b2ddb3ec4c43ee7ab24663d5f8ff1a1b6991a9
+        checksum/scripts: 560c33ff34d845009b51830c332aa05fa211444d1877d3526d3599be7543aaa5
+        checksum/secret: 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
+      labels:
+        app.kubernetes.io/component: master
+        app.kubernetes.io/instance: cvat
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        app.kubernetes.io/version: 7.2.3
+        helm.sh/chart: redis-18.5.0
+    spec:
+      affinity:
+        nodeAffinity: null
+        podAffinity: null
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/component: master
+                    app.kubernetes.io/instance: cvat
+                    app.kubernetes.io/name: redis
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+      automountServiceAccountToken: true
+      containers:
+        - args:
+            - -c
+            - /opt/bitnami/scripts/start-scripts/start-master.sh
+          command:
+            - /bin/bash
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: REDIS_REPLICATION_MODE
+              value: master
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "no"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-redis-secret
+            - name: REDIS_TLS_ENABLED
+              value: "no"
+            - name: REDIS_PORT
+              value: "6379"
+          image: docker.io/bitnami/redis:7.2.3-debian-11-r1
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - /health/ping_liveness_local.sh 5
+            failureThreshold: 5
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 6
+          name: redis
+          ports:
+            - containerPort: 6379
+              name: redis
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - /health/ping_readiness_local.sh 1
+            failureThreshold: 5
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 2
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsGroup: 0
+            runAsNonRoot: true
+            runAsUser: 1001
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - mountPath: /opt/bitnami/scripts/start-scripts
+              name: start-scripts
+            - mountPath: /health
+              name: health
+            - mountPath: /data
+              name: redis-data
+            - mountPath: /opt/bitnami/redis/mounted-etc
+              name: config
+            - mountPath: /opt/bitnami/redis/etc/
+              name: redis-tmp-conf
+            - mountPath: /tmp
+              name: tmp
+      enableServiceLinks: true
+      securityContext:
+        fsGroup: 1001
+      serviceAccountName: cvat-redis
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - configMap:
+            defaultMode: 493
+            name: cvat-redis-scripts
+          name: start-scripts
+        - configMap:
+            defaultMode: 493
+            name: cvat-redis-health
+          name: health
+        - configMap:
+            name: cvat-redis-configuration
+          name: config
+        - name: redis-tmp-conf
+        - name: tmp
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        labels:
+          app.kubernetes.io/component: master
+          app.kubernetes.io/instance: cvat
+          app.kubernetes.io/name: redis
+        name: redis-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 8Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/component: Aggregator
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: vector
+    app.kubernetes.io/version: 0.26.0-alpine
+    helm.sh/chart: vector-0.19.2
+  name: cvat-vector
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: Aggregator
+      app.kubernetes.io/instance: cvat
+      app.kubernetes.io/name: vector
+  serviceName: cvat-vector-headless
+  template:
+    metadata:
+      annotations: null
+      labels:
+        app.kubernetes.io/component: Aggregator
+        app.kubernetes.io/instance: cvat
+        app.kubernetes.io/name: vector
+        vector.dev/exclude: "true"
+    spec:
+      containers:
+        - args:
+            - --config-dir
+            - /etc/vector/
+          env: null
+          envFrom:
+            - secretRef:
+                name: cvat-analytics-secret
+          image: timberio/vector:0.26.0-alpine
+          imagePullPolicy: IfNotPresent
+          name: vector
+          ports:
+            - containerPort: 80
+              name: http
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /vector-data-dir
+              name: data
+            - mountPath: /etc/vector/
+              name: config
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      serviceAccountName: cvat-vector
+      terminationGracePeriodSeconds: 60
+      volumes:
+        - name: data
+        - name: config
+          projected:
+            sources:
+              - configMap:
+                  name: cvat-vector-config
+  volumeClaimTemplates: null
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+    tier: kvrocks
+  name: cvat-kvrocks
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-app
+      app.kubernetes.io/instance: cvat
+      app.kubernetes.io/name: cvat
+      tier: kvrocks
+  serviceName: cvat-kvrocks
+  template:
+    metadata:
+      labels:
+        app: cvat-app
+        app.kubernetes.io/instance: cvat
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: cvat
+        app.kubernetes.io/version: latest
+        helm.sh/chart: cvat
+        tier: kvrocks
+    spec:
+      containers:
+        - args:
+            - --dir
+            - /var/lib/kvrocks/data
+            - --requirepass
+            - $(CVAT_REDIS_ONDISK_PASSWORD)
+          env:
+            - name: CVAT_REDIS_ONDISK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-kvrocks-secret
+          image: apache/kvrocks:2.7.0
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - ./bin/redis-cli -p 6666 PING | grep -E '(PONG|NOAUTH)'
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          name: cvat-kvrocks-app-container
+          ports:
+            - containerPort: 6666
+              name: kvrocks
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - ./bin/redis-cli -p 6666 PING | grep -E '(PONG|NOAUTH)'
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          volumeMounts:
+            - mountPath: /var/lib/kvrocks/data
+              name: cvat-kvrocks-data
+  volumeClaimTemplates:
+    - metadata:
+        labels:
+          app: cvat-app
+          app.kubernetes.io/instance: cvat
+          app.kubernetes.io/managed-by: Helm
+          app.kubernetes.io/name: cvat
+          app.kubernetes.io/version: latest
+          helm.sh/chart: cvat
+          tier: kvroocks
+        name: cvat-kvrocks-data
+        namespace: default
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    app: cvat-app
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    component: initializer
+    helm.sh/chart: cvat
+    tier: backend
+  name: cvat-backend-initializer-r1
+  namespace: default
+spec:
+  template:
+    metadata:
+      labels:
+        app: cvat-app
+        app.kubernetes.io/instance: cvat
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: cvat
+        app.kubernetes.io/version: latest
+        component: initializer
+        helm.sh/chart: cvat
+        tier: backend
+    spec:
+      containers:
+        - args:
+            - init
+          env:
+            - name: CVAT_REDIS_INMEM_HOST
+              value: cvat-redis-master
+            - name: CVAT_REDIS_INMEM_PORT
+              value: "6379"
+            - name: CVAT_REDIS_INMEM_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-redis-secret
+            - name: CVAT_REDIS_ONDISK_HOST
+              value: cvat-kvrocks
+            - name: CVAT_REDIS_ONDISK_PORT
+              value: "6666"
+            - name: CVAT_REDIS_ONDISK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-kvrocks-secret
+            - name: CVAT_POSTGRES_HOST
+              value: cvat-postgresql
+            - name: CVAT_POSTGRES_PORT
+              value: "5432"
+            - name: CVAT_POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: cvat-postgres-secret
+            - name: CVAT_POSTGRES_DBNAME
+              valueFrom:
+                secretKeyRef:
+                  key: database
+                  name: cvat-postgres-secret
+            - name: CVAT_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: cvat-postgres-secret
+            - name: CVAT_ANALYTICS
+              value: "1"
+            - name: DJANGO_LOG_SERVER_HOST
+              value: cvat-vector
+            - name: DJANGO_LOG_SERVER_PORT
+              value: "80"
+            - name: CLICKHOUSE_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_HOST
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_PORT
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_DB
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_DB
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_USER
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_USER
+                  name: cvat-analytics-secret
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: CLICKHOUSE_PASSWORD
+                  name: cvat-analytics-secret
+            - name: SMOKESCREEN_OPTS
+          image: cvat/server:dev
+          imagePullPolicy: Always
+          name: cvat-backend
+      restartPolicy: OnFailure
+      serviceAccountName: default
+---
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  annotations:
+    ingressclass.kubernetes.io/is-default-class: "true"
+  labels:
+    app.kubernetes.io/instance: cvat-default
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: traefik
+    helm.sh/chart: traefik-34.4.1
+  name: cvat-traefik
+spec:
+  controller: traefik.io/ingress-controller
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares:
+      default-stripprefix@kubernetescrd,
+      default-forwardauth@kubernetescrd
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+  name: cvat-analytics
+  namespace: default
+spec:
+  ingressClassName: cvat-traefik
+  rules:
+    - host: cvat.local
+      http:
+        paths:
+          - backend:
+              service:
+                name: cvat-grafana
+                port:
+                  number: 80
+            path: /analytics
+            pathType: Prefix
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+  name: cvat
+  namespace: default
+spec:
+  ingressClassName: cvat-traefik
+  rules:
+    - host: cvat.local
+      http:
+        paths:
+          - backend:
+              service:
+                name: cvat-backend-service
+                port:
+                  number: 8080
+            path: /api
+            pathType: Prefix
+          - backend:
+              service:
+                name: cvat-backend-service
+                port:
+                  number: 8080
+            path: /admin
+            pathType: Prefix
+          - backend:
+              service:
+                name: cvat-backend-service
+                port:
+                  number: 8080
+            path: /static
+            pathType: Prefix
+          - backend:
+              service:
+                name: cvat-backend-service
+                port:
+                  number: 8080
+            path: /django-rq
+            pathType: Prefix
+          - backend:
+              service:
+                name: cvat-backend-service
+                port:
+                  number: 8080
+            path: /profiler
+            pathType: Prefix
+          - backend:
+              service:
+                name: cvat-frontend-service
+                port:
+                  number: 80
+            path: /
+            pathType: Prefix
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  annotations: null
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+  name: forwardauth
+  namespace: default
+spec:
+  forwardAuth:
+    address: http://cvat-backend-service:8080/analytics
+    authRequestHeaders:
+      - Cookie
+      - Authorization
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  annotations: null
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/version: latest
+    helm.sh/chart: cvat
+  name: stripprefix
+  namespace: default
+spec:
+  stripPrefix:
+    prefixes:
+      - /analytics
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    helm.sh/hook: test-success
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/version: 10.1.5
+    helm.sh/chart: grafana-6.60.6
+  name: cvat-grafana-test
+  namespace: default
+---
+apiVersion: v1
+data:
+  run.sh: |-
+    @test "Test Health" {
+      url="http://cvat-grafana/api/health"
+
+      code=$(wget --server-response --spider --timeout 90 --tries 10 ${url} 2>&1 | awk '/^  HTTP/{print $2}')
+      [ "$code" == "200" ]
+    }
+kind: ConfigMap
+metadata:
+  annotations:
+    helm.sh/hook: test-success
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/version: 10.1.5
+    helm.sh/chart: grafana-6.60.6
+  name: cvat-grafana-test
+  namespace: default
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    helm.sh/hook: test-success
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+  labels:
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/version: 10.1.5
+    helm.sh/chart: grafana-6.60.6
+  name: cvat-grafana-test
+  namespace: default
+spec:
+  containers:
+    - command:
+        - /opt/bats/bin/bats
+        - -t
+        - /tests/run.sh
+      image: docker.io/bats/bats:v1.4.1
+      name: cvat-test
+      volumeMounts:
+        - mountPath: /tests
+          name: tests
+          readOnly: true
+  restartPolicy: Never
+  serviceAccountName: cvat-grafana-test
+  volumes:
+    - configMap:
+        name: cvat-grafana-test
+      name: tests

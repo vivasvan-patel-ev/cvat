@@ -1,0 +1,2259 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: manual
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
+allowVolumeExpansion: true
+---
+# CVAT All-in-One Kubernetes Deployment
+# ========================================
+# Persistent Volumes and Claims
+# ========================================
+
+# Database PV and PVC
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cvat-db-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data/cvat-db"
+    type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cvat-db-pvc
+  namespace: platform-evml
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+
+# Redis In-memory PV and PVC
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cvat-redis-inmem-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data/cvat-redis-inmem"
+    type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cvat-redis-inmem-pvc
+  namespace: platform-evml
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+# Redis On-disk PV and PVC
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cvat-redis-ondisk-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data/cvat-redis-ondisk"
+    type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cvat-redis-ondisk-pvc
+  namespace: platform-evml
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+
+# CVAT Data PV and PVC
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cvat-data-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/data/cvat-data"
+    type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cvat-data-pvc
+  namespace: platform-evml
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+
+# CVAT Keys PV and PVC
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cvat-keys-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/data/cvat-keys"
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cvat-keys-pvc
+  namespace: platform-evml
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+
+# CVAT Logs PV and PVC
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cvat-logs-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/data/cvat-logs"
+    type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cvat-logs-pvc
+  namespace: platform-evml
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+
+# ClickHouse PV and PVC
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cvat-events-db-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 30Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data/cvat-events-db"
+    type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cvat-events-db-pvc
+  namespace: platform-evml
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 30Gi
+
+# ========================================
+# ConfigMaps
+# ========================================
+
+# ClickHouse Init Script
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: clickhouse-init-script
+  namespace: platform-evml
+data:
+  init.sh: |
+    #!/bin/bash
+    set -e
+
+    clickhouse client -n <<-EOSQL
+        CREATE DATABASE IF NOT EXISTS $CLICKHOUSE_DB;
+        CREATE USER IF NOT EXISTS $CLICKHOUSE_USER IDENTIFIED BY '$CLICKHOUSE_PASSWORD';
+        GRANT ALL ON $CLICKHOUSE_DB.* TO $CLICKHOUSE_USER;
+    EOSQL
+
+
+# Vector Config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vector-config
+  namespace: platform-evml
+data:
+  vector.toml: |
+    # Vector configuration
+    [sources]
+      [sources.django_logs]
+        type = "http"
+        address = "0.0.0.0:80"
+        encoding = "text"
+        headers = ["Content-Type"]
+
+    [sinks]
+      [sinks.clickhouse]
+        inputs = ["django_logs"]
+        type = "clickhouse"
+        database = "$${CLICKHOUSE_DB}"
+        endpoint = "http://$${CLICKHOUSE_HOST}:$${CLICKHOUSE_PORT}"
+        table = "django_logs"
+        auth.strategy = "basic"
+        auth.user = "$${CLICKHOUSE_USER}"
+        auth.password = "$${CLICKHOUSE_PASSWORD}"
+
+
+# Grafana Datasources
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: platform-evml
+data:
+  ds.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: 'ClickHouse'
+        type: 'grafana-clickhouse-datasource'
+        isDefault: true
+        jsonData:
+          defaultDatabase: $${CLICKHOUSE_DB}
+          port: $${CLICKHOUSE_PORT}
+          server: $${CLICKHOUSE_HOST}
+          username: $${CLICKHOUSE_USER}
+          tlsSkipVerify: false
+          protocol: http
+        secureJsonData:
+          password: $${CLICKHOUSE_PASSWORD}
+        editable: true
+
+
+# Grafana Dashboard Config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-config
+  namespace: platform-evml
+data:
+  dashboard.yaml: |
+    apiVersion: 1
+    providers:
+      - name: cvat-logs
+        type: file
+        updateIntervalSeconds: 30
+        options:
+          path: /var/lib/grafana/dashboards
+          foldersFromFilesStructure: true
+
+
+# Grafana Dashboards
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: platform-evml
+data:
+  all_events.json: |
+    {
+      "dashboard": {
+        "title": "CVAT Events Dashboard",
+        "panels": []
+      }
+    }
+
+
+# ========================================
+# Database
+# ========================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-db
+  namespace: platform-evml
+  labels:
+    app: cvat-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-db
+  template:
+    metadata:
+      labels:
+        app: cvat-db
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          ports:
+            - containerPort: 5432
+              name: postgres
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - root
+                - -d
+                - cvat
+                - -h
+                - localhost
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 1
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - root
+                - -d
+                - cvat
+                - -h
+                - localhost
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          env:
+            - name: POSTGRES_USER
+              value: "root"
+            - name: POSTGRES_DB
+              value: "cvat"
+            - name: POSTGRES_HOST_AUTH_METHOD
+              value: "trust"
+            - name: PGDATA
+              value: "/var/lib/postgresql/data/pgdata"
+          volumeMounts:
+            - name: cvat-db-storage
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: cvat-db-storage
+          persistentVolumeClaim:
+            claimName: cvat-db-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-db
+  namespace: platform-evml
+  labels:
+    app: cvat-db
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: postgres
+      protocol: TCP
+  selector:
+    app: cvat-db
+
+# ========================================
+# Redis In-Memory
+# ========================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-redis-inmem
+  namespace: platform-evml
+  labels:
+    app: cvat-redis-inmem
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-redis-inmem
+  template:
+    metadata:
+      labels:
+        app: cvat-redis-inmem
+    spec:
+      initContainers:
+        - name: fix-permissions-inmem
+          image: busybox:1.36
+          command:
+            ["sh", "-c", "chown -R 1000:1000 /data && chmod -R 770 /data"]
+          volumeMounts:
+            - name: cvat-redis-inmem-storage
+              mountPath: /data
+      containers:
+        - name: redis
+          image: redis:7.2.3-alpine
+          ports:
+            - containerPort: 6379
+              name: redis
+          readinessProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 1
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          command:
+            - redis-server
+            - "--save"
+            - "60"
+            - "100"
+            - "--appendonly"
+            - "yes"
+          volumeMounts:
+            - name: cvat-redis-inmem-storage
+              mountPath: /data
+      volumes:
+        - name: cvat-redis-inmem-storage
+          persistentVolumeClaim:
+            claimName: cvat-redis-inmem-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-redis-inmem
+  namespace: platform-evml
+  labels:
+    app: cvat-redis-inmem
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6379
+      targetPort: redis
+      protocol: TCP
+  selector:
+    app: cvat-redis-inmem
+
+# ========================================
+# Redis On-Disk (Kvrocks)
+# ========================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-redis-ondisk
+  namespace: platform-evml
+  labels:
+    app: cvat-redis-ondisk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-redis-ondisk
+  template:
+    metadata:
+      labels:
+        app: cvat-redis-ondisk
+      annotations:
+        sidecar.istio.io/inject: "false"
+        sidecar.istio.io/proxyProbe: '{"readiness": {"disabled": true}, "liveness": {"disabled": true}}'
+    spec:
+      terminationGracePeriodSeconds: 60
+      enableServiceLinks: false
+      shareProcessNamespace: true
+      initContainers:
+        - name: fix-permissions-ondisk
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /var/lib/kvrocks/data && chmod -R 770 /var/lib/kvrocks/data",
+            ]
+          volumeMounts:
+            - name: cvat-redis-ondisk-storage
+              mountPath: /var/lib/kvrocks/data
+      containers:
+        - name: kvrocks
+          image: apache/kvrocks:2.7.0
+          ports:
+            - containerPort: 6666
+              name: kvrocks
+          readinessProbe:
+            tcpSocket:
+              port: 6666
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          livenessProbe:
+            tcpSocket:
+              port: 6666
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          command:
+            - kvrocks
+            - "-c"
+            - "/var/lib/kvrocks/kvrocks.conf"
+            - "--dir"
+            - "/var/lib/kvrocks/data"
+            - "--pidfile"
+            - "/var/run/kvrocks/kvrocks.pid"
+            - "--bind"
+            - "0.0.0.0"
+          volumeMounts:
+            - name: cvat-redis-ondisk-storage
+              mountPath: /var/lib/kvrocks/data
+      volumes:
+        - name: cvat-redis-ondisk-storage
+          persistentVolumeClaim:
+            claimName: cvat-redis-ondisk-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-redis-ondisk
+  namespace: platform-evml
+  labels:
+    app: cvat-redis-ondisk
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6379
+      targetPort: 6666
+      protocol: TCP
+  selector:
+    app: cvat-redis-ondisk
+
+# ========================================
+# CVAT Server
+# ========================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-server
+  namespace: platform-evml
+  labels:
+    app: cvat-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-server
+  template:
+    metadata:
+      labels:
+        app: cvat-server
+    spec:
+      initContainers:
+        # - name: wait-for-redis-inmem
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-redis-inmem 6379; do sleep 2; done']
+        # - name: wait-for-redis-ondisk
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-redis-ondisk 6666; do sleep 2; done']
+        # - name: wait-for-db
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-db 5432; do sleep 2; done']
+        - name: fix-permissions-keys
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/keys && chmod -R 770 /home/django/keys",
+            ]
+          volumeMounts:
+            - name: cvat-keys
+              mountPath: /home/django/keys
+        - name: fix-permissions-data
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/data && chmod -R 770 /home/django/data",
+            ]
+          volumeMounts:
+            - name: cvat-data
+              mountPath: /home/django/data
+        - name: fix-permissions-logs
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/logs && chmod -R 770 /home/django/logs",
+            ]
+          volumeMounts:
+            - name: cvat-logs
+              mountPath: /home/django/logs
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: server
+          image: cvat/server:v2.32.0
+          ports:
+            - containerPort: 8080
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /api/server/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /api/server/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 10
+            failureThreshold: 3
+          args:
+            - init
+            - run
+            - server
+          env:
+            # Backend env variables
+            - name: CVAT_POSTGRES_HOST
+              value: cvat-db
+            - name: CVAT_REDIS_INMEM_HOST
+              value: cvat-redis-inmem
+            - name: CVAT_REDIS_INMEM_PORT
+              value: "6379"
+            - name: CVAT_REDIS_ONDISK_HOST
+              value: cvat-redis-ondisk
+            - name: CVAT_REDIS_ONDISK_PORT
+              value: "6379"
+            - name: CVAT_LOG_IMPORT_ERRORS
+              value: "true"
+            - name: DJANGO_LOG_SERVER_HOST
+              value: vector
+            - name: DJANGO_LOG_SERVER_PORT
+              value: "80"
+            - name: no_proxy
+              value: "clickhouse,grafana,vector,nuclio,opa"
+            # Clickhouse env variables
+            - name: CLICKHOUSE_HOST
+              value: clickhouse
+            - name: CLICKHOUSE_PORT
+              value: "8123"
+            - name: CLICKHOUSE_DB
+              value: cvat
+            - name: CLICKHOUSE_USER
+              value: user
+            - name: CLICKHOUSE_PASSWORD
+              value: user
+            # Server-specific env variables
+            - name: DJANGO_MODWSGI_EXTRA_ARGS
+              value: ""
+            - name: ALLOWED_HOSTS
+              value: "*"
+            - name: ADAPTIVE_AUTO_ANNOTATION
+              value: "false"
+            - name: NUMPROCS
+              value: "2"
+            - name: CVAT_ANALYTICS
+              value: "1"
+            - name: ONE_RUNNING_JOB_IN_QUEUE_PER_USER
+              value: "True"
+            - name: SMOKESCREEN_OPTS
+              value: ""
+          volumeMounts:
+            - name: cvat-data
+              mountPath: /home/django/data
+            - name: cvat-keys
+              mountPath: /home/django/keys
+            - name: cvat-logs
+              mountPath: /home/django/logs
+      volumes:
+        - name: cvat-data
+          persistentVolumeClaim:
+            claimName: cvat-data-pvc
+        - name: cvat-keys
+          persistentVolumeClaim:
+            claimName: cvat-keys-pvc
+        - name: cvat-logs
+          persistentVolumeClaim:
+            claimName: cvat-logs-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-server
+  namespace: platform-evml
+  labels:
+    app: cvat-server
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+  selector:
+    app: cvat-server
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: cvat-server-gateway
+  namespace: platform-evml
+spec:
+  servers:
+    - port:
+        number: 8080
+        name: http-cvat
+        protocol: HTTP
+      hosts:
+        - cvat-server.cmh.platform-test2.evinternal.net
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: cvat-server-virtual-service
+  namespace: platform-evml
+spec:
+  gateways:
+    - cvat-server-gateway
+  hosts:
+    - cvat-server.cmh.platform-test2.evinternal.net
+  http:
+    - match:
+        - uri:
+            prefix: /api/
+        - uri:
+            prefix: /static/
+        - uri:
+            prefix: /admin
+        - uri:
+            prefix: /documentation/
+        - uri:
+            prefix: /django-rq
+      route:
+        - destination:
+            host: cvat-server
+            port:
+              number: 8080
+
+# ========================================
+# CVAT UI
+# ========================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-ui
+  namespace: platform-evml
+  labels:
+    app: cvat-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-ui
+  template:
+    metadata:
+      labels:
+        app: cvat-ui
+    spec:
+      containers:
+        - name: ui
+          image: cvat/ui:v2.32.0
+          ports:
+            - containerPort: 80
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-ui
+  namespace: platform-evml
+  labels:
+    app: cvat-ui
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+  selector:
+    app: cvat-ui
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: cvat-ui-gateway
+  namespace: platform-evml
+spec:
+  servers:
+    - port:
+        number: 80
+        name: http-ui
+        protocol: HTTP
+      hosts:
+        - cvat-ui.cmh.platform-test2.evinternal.net
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: cvat-ui-virtual-service
+  namespace: platform-evml
+spec:
+  gateways:
+    - cvat-ui-gateway
+  hosts:
+    - cvat-ui.cmh.platform-test2.evinternal.net
+  http:
+    - route:
+        - destination:
+            host: cvat-ui
+            port:
+              number: 80
+
+# ========================================
+# CVAT Utils
+# ========================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-utils
+  namespace: platform-evml
+  labels:
+    app: cvat-utils
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-utils
+  template:
+    metadata:
+      labels:
+        app: cvat-utils
+    spec:
+      initContainers:
+        # - name: wait-for-redis-inmem
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-redis-inmem 6379; do sleep 2; done']
+        # - name: wait-for-redis-ondisk
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-redis-ondisk 6666; do sleep 2; done']
+        # - name: wait-for-db
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-db 5432; do sleep 2; done']
+        - name: fix-permissions-keys
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/keys && chmod -R 770 /home/django/keys",
+            ]
+          volumeMounts:
+            - name: cvat-keys
+              mountPath: /home/django/keys
+        - name: fix-permissions-data
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/data && chmod -R 770 /home/django/data",
+            ]
+          volumeMounts:
+            - name: cvat-data
+              mountPath: /home/django/data
+        - name: fix-permissions-logs
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/logs && chmod -R 770 /home/django/logs",
+            ]
+          volumeMounts:
+            - name: cvat-logs
+              mountPath: /home/django/logs
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: utils
+          image: cvat/server:v2.32.0
+          args:
+            - run
+            - utils
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            allowPrivilegeEscalation: true
+          readinessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - "ps aux | grep -v grep | grep -q 'python3 /home/django/manage.py'"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          env:
+            # Backend env variables
+            - name: CVAT_POSTGRES_HOST
+              value: cvat-db
+            - name: CVAT_REDIS_INMEM_HOST
+              value: cvat-redis-inmem
+            - name: CVAT_REDIS_INMEM_PORT
+              value: "6379"
+            - name: CVAT_REDIS_INMEM_PASSWORD
+              value: ""
+            - name: CVAT_REDIS_ONDISK_HOST
+              value: cvat-redis-ondisk
+            - name: CVAT_REDIS_ONDISK_PORT
+              value: "6379"
+            - name: CVAT_LOG_IMPORT_ERRORS
+              value: "true"
+            - name: DJANGO_LOG_SERVER_HOST
+              value: vector
+            - name: DJANGO_LOG_SERVER_PORT
+              value: "80"
+            - name: no_proxy
+              value: "clickhouse,grafana,vector,nuclio,opa"
+            - name: NUMPROCS
+              value: "1"
+            - name: SMOKESCREEN_OPTS
+              value: ""
+          volumeMounts:
+            - name: cvat-data
+              mountPath: /home/django/data
+            - name: cvat-keys
+              mountPath: /home/django/keys
+            - name: cvat-logs
+              mountPath: /home/django/logs
+      volumes:
+        - name: cvat-data
+          persistentVolumeClaim:
+            claimName: cvat-data-pvc
+        - name: cvat-keys
+          persistentVolumeClaim:
+            claimName: cvat-keys-pvc
+        - name: cvat-logs
+          persistentVolumeClaim:
+            claimName: cvat-logs-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-utils
+  namespace: platform-evml
+  labels:
+    app: cvat-utils
+spec:
+  type: ClusterIP
+  selector:
+    app: cvat-utils
+
+# ========================================
+# Worker Services
+# ========================================
+
+# Worker Import
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-worker-import
+  namespace: platform-evml
+  labels:
+    app: cvat-worker-import
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-worker-import
+  template:
+    metadata:
+      labels:
+        app: cvat-worker-import
+    spec:
+      initContainers:
+        # - name: wait-for-redis-inmem
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-redis-inmem 6379; do sleep 2; done']
+        # - name: wait-for-redis-ondisk
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-redis-ondisk 6666; do sleep 2; done']
+        # - name: wait-for-db
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-db 5432; do sleep 2; done']
+        - name: fix-permissions-keys
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/keys && chmod -R 770 /home/django/keys",
+            ]
+          volumeMounts:
+            - name: cvat-keys
+              mountPath: /home/django/keys
+        - name: fix-permissions-data
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/data && chmod -R 770 /home/django/data",
+            ]
+          volumeMounts:
+            - name: cvat-data
+              mountPath: /home/django/data
+        - name: fix-permissions-logs
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/logs && chmod -R 770 /home/django/logs",
+            ]
+          volumeMounts:
+            - name: cvat-logs
+              mountPath: /home/django/logs
+      containers:
+        - name: worker-import
+          image: cvat/server:v2.32.0
+          args:
+            - run
+            - worker.import
+          readinessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - "ps aux | grep -v grep | grep -q 'python3 /home/django/manage.py'"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          env:
+            # Backend env variables
+            - name: CVAT_POSTGRES_HOST
+              value: cvat-db
+            - name: CVAT_REDIS_INMEM_HOST
+              value: cvat-redis-inmem
+            - name: CVAT_REDIS_INMEM_PORT
+              value: "6379"
+            - name: CVAT_REDIS_ONDISK_HOST
+              value: cvat-redis-ondisk
+            - name: CVAT_REDIS_ONDISK_PORT
+              value: "6379"
+            - name: CVAT_LOG_IMPORT_ERRORS
+              value: "true"
+            - name: DJANGO_LOG_SERVER_HOST
+              value: vector
+            - name: DJANGO_LOG_SERVER_PORT
+              value: "80"
+            - name: no_proxy
+              value: "clickhouse,grafana,vector,nuclio,opa"
+            - name: NUMPROCS
+              value: "2"
+            - name: SMOKESCREEN_OPTS
+              value: ""
+          volumeMounts:
+            - name: cvat-data
+              mountPath: /home/django/data
+            - name: cvat-keys
+              mountPath: /home/django/keys
+            - name: cvat-logs
+              mountPath: /home/django/logs
+      volumes:
+        - name: cvat-data
+          persistentVolumeClaim:
+            claimName: cvat-data-pvc
+        - name: cvat-keys
+          persistentVolumeClaim:
+            claimName: cvat-keys-pvc
+        - name: cvat-logs
+          persistentVolumeClaim:
+            claimName: cvat-logs-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-worker-import
+  namespace: platform-evml
+  labels:
+    app: cvat-worker-import
+
+# Worker Export
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-worker-export
+  namespace: platform-evml
+  labels:
+    app: cvat-worker-export
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-worker-export
+  template:
+    metadata:
+      labels:
+        app: cvat-worker-export
+    spec:
+      initContainers:
+        # - name: wait-for-redis-inmem
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-redis-inmem 6379; do sleep 2; done']
+        # - name: wait-for-redis-ondisk
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-redis-ondisk 6666; do sleep 2; done']
+        # - name: wait-for-db
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-db 5432; do sleep 2; done']
+        - name: fix-permissions-keys
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/keys && chmod -R 770 /home/django/keys",
+            ]
+          volumeMounts:
+            - name: cvat-keys
+              mountPath: /home/django/keys
+        - name: fix-permissions-data
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/data && chmod -R 770 /home/django/data",
+            ]
+          volumeMounts:
+            - name: cvat-data
+              mountPath: /home/django/data
+        - name: fix-permissions-logs
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/logs && chmod -R 770 /home/django/logs",
+            ]
+          volumeMounts:
+            - name: cvat-logs
+              mountPath: /home/django/logs
+      containers:
+        - name: worker-export
+          image: cvat/server:v2.32.0
+          args:
+            - run
+            - worker.export
+          readinessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - "ps aux | grep -v grep | grep -q 'python3 /home/django/manage.py'"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          env:
+            # Backend env variables
+            - name: CVAT_POSTGRES_HOST
+              value: cvat-db
+            - name: CVAT_REDIS_INMEM_HOST
+              value: cvat-redis-inmem
+            - name: CVAT_REDIS_INMEM_PORT
+              value: "6379"
+            - name: CVAT_REDIS_ONDISK_HOST
+              value: cvat-redis-ondisk
+            - name: CVAT_REDIS_ONDISK_PORT
+              value: "6379"
+            - name: CVAT_LOG_IMPORT_ERRORS
+              value: "true"
+            - name: DJANGO_LOG_SERVER_HOST
+              value: vector
+            - name: DJANGO_LOG_SERVER_PORT
+              value: "80"
+            - name: no_proxy
+              value: "clickhouse,grafana,vector,nuclio,opa"
+            # Clickhouse env variables
+            - name: CLICKHOUSE_HOST
+              value: clickhouse
+            - name: CLICKHOUSE_PORT
+              value: "8123"
+            - name: CLICKHOUSE_DB
+              value: cvat
+            - name: CLICKHOUSE_USER
+              value: user
+            - name: CLICKHOUSE_PASSWORD
+              value: user
+            - name: NUMPROCS
+              value: "2"
+            - name: SMOKESCREEN_OPTS
+              value: ""
+          volumeMounts:
+            - name: cvat-data
+              mountPath: /home/django/data
+            - name: cvat-keys
+              mountPath: /home/django/keys
+            - name: cvat-logs
+              mountPath: /home/django/logs
+      volumes:
+        - name: cvat-data
+          persistentVolumeClaim:
+            claimName: cvat-data-pvc
+        - name: cvat-keys
+          persistentVolumeClaim:
+            claimName: cvat-keys-pvc
+        - name: cvat-logs
+          persistentVolumeClaim:
+            claimName: cvat-logs-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-worker-export
+  namespace: platform-evml
+  labels:
+    app: cvat-worker-export
+spec:
+  type: ClusterIP
+  selector:
+    app: cvat-worker-export
+
+# Worker Annotation
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-worker-annotation
+  namespace: platform-evml
+  labels:
+    app: cvat-worker-annotation
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-worker-annotation
+  template:
+    metadata:
+      labels:
+        app: cvat-worker-annotation
+    spec:
+      initContainers:
+        # - name: wait-for-redis-inmem
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-redis-inmem 6379; do sleep 2; done']
+        # - name: wait-for-redis-ondisk
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-redis-ondisk 6666; do sleep 2; done']
+        # - name: wait-for-db
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-db 5432; do sleep 2; done']
+        - name: fix-permissions-keys
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/keys && chmod -R 770 /home/django/keys",
+            ]
+          volumeMounts:
+            - name: cvat-keys
+              mountPath: /home/django/keys
+        - name: fix-permissions-data
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/data && chmod -R 770 /home/django/data",
+            ]
+          volumeMounts:
+            - name: cvat-data
+              mountPath: /home/django/data
+        - name: fix-permissions-logs
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/logs && chmod -R 770 /home/django/logs",
+            ]
+          volumeMounts:
+            - name: cvat-logs
+              mountPath: /home/django/logs
+      containers:
+        - name: worker-annotation
+          image: cvat/server:v2.32.0
+          args:
+          - run
+          - worker.annotation
+          readinessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - "ps aux | grep -v grep | grep -q 'python3 /home/django/manage.py'"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          env:
+            # Backend env variables
+            - name: CVAT_POSTGRES_HOST
+              value: cvat-db
+            - name: CVAT_REDIS_INMEM_HOST
+              value: cvat-redis-inmem
+            - name: CVAT_REDIS_INMEM_PORT
+              value: "6379"
+            - name: CVAT_REDIS_ONDISK_HOST
+              value: cvat-redis-ondisk
+            - name: CVAT_REDIS_ONDISK_PORT
+              value: "6379"
+            - name: CVAT_LOG_IMPORT_ERRORS
+              value: "true"
+            - name: DJANGO_LOG_SERVER_HOST
+              value: vector
+            - name: DJANGO_LOG_SERVER_PORT
+              value: "80"
+            - name: no_proxy
+              value: "clickhouse,grafana,vector,nuclio,opa"
+            - name: NUMPROCS
+              value: "1"
+            - name: SMOKESCREEN_OPTS
+              value: ""
+          volumeMounts:
+            - name: cvat-data
+              mountPath: /home/django/data
+            - name: cvat-keys
+              mountPath: /home/django/keys
+            - name: cvat-logs
+              mountPath: /home/django/logs
+      volumes:
+        - name: cvat-data
+          persistentVolumeClaim:
+            claimName: cvat-data-pvc
+        - name: cvat-keys
+          persistentVolumeClaim:
+            claimName: cvat-keys-pvc
+        - name: cvat-logs
+          persistentVolumeClaim:
+            claimName: cvat-logs-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-worker-annotation
+  namespace: platform-evml
+  labels:
+    app: cvat-worker-annotation
+spec:
+  type: ClusterIP
+  selector:
+    app: cvat-worker-annotation
+
+# Worker Webhooks
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-worker-webhooks
+  namespace: platform-evml
+  labels:
+    app: cvat-worker-webhooks
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-worker-webhooks
+  template:
+    metadata:
+      labels:
+        app: cvat-worker-webhooks
+    spec:
+      initContainers:
+        # - name: wait-for-redis-inmem
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-redis-inmem 6379; do sleep 2; done']
+        # - name: wait-for-redis-ondisk
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-redis-ondisk 6666; do sleep 2; done']
+        # - name: wait-for-db
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-db 5432; do sleep 2; done']
+        - name: fix-permissions-keys
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/keys && chmod -R 770 /home/django/keys",
+            ]
+          volumeMounts:
+            - name: cvat-keys
+              mountPath: /home/django/keys
+        - name: fix-permissions-data
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/data && chmod -R 770 /home/django/data",
+            ]
+          volumeMounts:
+            - name: cvat-data
+              mountPath: /home/django/data
+        - name: fix-permissions-logs
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/logs && chmod -R 770 /home/django/logs",
+            ]
+          volumeMounts:
+            - name: cvat-logs
+              mountPath: /home/django/logs
+      containers:
+        - name: worker-webhooks
+          image: cvat/server:v2.32.0
+          args:
+            - run
+            - worker.webhooks
+          readinessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - "ps aux | grep -v grep | grep -q 'python3 /home/django/manage.py'"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          env:
+            # Backend env variables
+            - name: CVAT_POSTGRES_HOST
+              value: cvat-db
+            - name: CVAT_REDIS_INMEM_HOST
+              value: cvat-redis-inmem
+            - name: CVAT_REDIS_INMEM_PORT
+              value: "6379"
+            - name: CVAT_REDIS_ONDISK_HOST
+              value: cvat-redis-ondisk
+            - name: CVAT_REDIS_ONDISK_PORT
+              value: "6379"
+            - name: CVAT_LOG_IMPORT_ERRORS
+              value: "true"
+            - name: DJANGO_LOG_SERVER_HOST
+              value: vector
+            - name: DJANGO_LOG_SERVER_PORT
+              value: "80"
+            - name: no_proxy
+              value: "clickhouse,grafana,vector,nuclio,opa"
+            - name: NUMPROCS
+              value: "1"
+
+            - name: SMOKESCREEN_OPTS
+              value: ""
+          volumeMounts:
+            - name: cvat-data
+              mountPath: /home/django/data
+            - name: cvat-keys
+              mountPath: /home/django/keys
+            - name: cvat-logs
+              mountPath: /home/django/logs
+      volumes:
+        - name: cvat-data
+          persistentVolumeClaim:
+            claimName: cvat-data-pvc
+        - name: cvat-keys
+          persistentVolumeClaim:
+            claimName: cvat-keys-pvc
+        - name: cvat-logs
+          persistentVolumeClaim:
+            claimName: cvat-logs-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-worker-webhooks
+  namespace: platform-evml
+  labels:
+    app: cvat-worker-webhooks
+spec:
+  type: ClusterIP
+  selector:
+    app: cvat-worker-webhooks
+
+# Worker Quality Reports
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-worker-quality-reports
+  namespace: platform-evml
+  labels:
+    app: cvat-worker-quality-reports
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-worker-quality-reports
+  template:
+    metadata:
+      labels:
+        app: cvat-worker-quality-reports
+    spec:
+      initContainers:
+        # - name: wait-for-redis-inmem
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-redis-inmem 6379; do sleep 2; done']
+        # - name: wait-for-redis-ondisk
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-redis-ondisk 6666; do sleep 2; done']
+        # - name: wait-for-db
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-db 5432; do sleep 2; done']
+        - name: fix-permissions-keys
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/keys && chmod -R 770 /home/django/keys",
+            ]
+          volumeMounts:
+            - name: cvat-keys
+              mountPath: /home/django/keys
+        - name: fix-permissions-data
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/data && chmod -R 770 /home/django/data",
+            ]
+          volumeMounts:
+            - name: cvat-data
+              mountPath: /home/django/data
+        - name: fix-permissions-logs
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/logs && chmod -R 770 /home/django/logs",
+            ]
+          volumeMounts:
+            - name: cvat-logs
+              mountPath: /home/django/logs
+      containers:
+        - name: worker-quality-reports
+          image: cvat/server:v2.32.0
+          command:
+            - run
+            - worker.quality_reports
+          readinessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - "ps aux | grep -v grep | grep -q 'python3 /home/django/manage.py'"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          env:
+            # Backend env variables
+            - name: CVAT_POSTGRES_HOST
+              value: cvat-db
+            - name: CVAT_REDIS_INMEM_HOST
+              value: cvat-redis-inmem
+            - name: CVAT_REDIS_INMEM_PORT
+              value: "6379"
+            - name: CVAT_REDIS_ONDISK_HOST
+              value: cvat-redis-ondisk
+            - name: CVAT_REDIS_ONDISK_PORT
+              value: "6379"
+            - name: CVAT_LOG_IMPORT_ERRORS
+              value: "true"
+            - name: DJANGO_LOG_SERVER_HOST
+              value: vector
+            - name: DJANGO_LOG_SERVER_PORT
+              value: "80"
+            - name: no_proxy
+              value: "clickhouse,grafana,vector,nuclio,opa"
+            - name: NUMPROCS
+              value: "1"
+            - name: SMOKESCREEN_OPTS
+              value: ""
+          volumeMounts:
+            - name: cvat-data
+              mountPath: /home/django/data
+            - name: cvat-keys
+              mountPath: /home/django/keys
+            - name: cvat-logs
+              mountPath: /home/django/logs
+      volumes:
+        - name: cvat-data
+          persistentVolumeClaim:
+            claimName: cvat-data-pvc
+        - name: cvat-keys
+          persistentVolumeClaim:
+            claimName: cvat-keys-pvc
+        - name: cvat-logs
+          persistentVolumeClaim:
+            claimName: cvat-logs-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-worker-quality-reports
+  namespace: platform-evml
+  labels:
+    app: cvat-worker-quality-reports
+spec:
+  type: ClusterIP
+  selector:
+    app: cvat-worker-quality-reports
+
+# Worker Analytics Reports
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-worker-analytics-reports
+  namespace: platform-evml
+  labels:
+    app: cvat-worker-analytics-reports
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-worker-analytics-reports
+  template:
+    metadata:
+      labels:
+        app: cvat-worker-analytics-reports
+    spec:
+      initContainers:
+        # - name: wait-for-redis-inmem
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-redis-inmem 6379; do sleep 2; done']
+        # - name: wait-for-redis-ondisk
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-redis-ondisk 6666; do sleep 2; done']
+        # - name: wait-for-db
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-db 5432; do sleep 2; done']
+        - name: fix-permissions-keys
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/keys && chmod -R 770 /home/django/keys",
+            ]
+          volumeMounts:
+            - name: cvat-keys
+              mountPath: /home/django/keys
+        - name: fix-permissions-data
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/data && chmod -R 770 /home/django/data",
+            ]
+          volumeMounts:
+            - name: cvat-data
+              mountPath: /home/django/data
+        - name: fix-permissions-logs
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/logs && chmod -R 770 /home/django/logs",
+            ]
+          volumeMounts:
+            - name: cvat-logs
+              mountPath: /home/django/logs
+      containers:
+        - name: worker-analytics-reports
+          image: cvat/server:v2.32.0
+          args:
+            - run
+            - worker.analytics_reports
+          readinessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - "ps aux | grep -v grep | grep -q 'python3 /home/django/manage.py'"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          env:
+            # Backend env variables
+            - name: CVAT_POSTGRES_HOST
+              value: cvat-db
+            - name: CVAT_REDIS_INMEM_HOST
+              value: cvat-redis-inmem
+            - name: CVAT_REDIS_INMEM_PORT
+              value: "6379"
+            - name: CVAT_REDIS_ONDISK_HOST
+              value: cvat-redis-ondisk
+            - name: CVAT_REDIS_ONDISK_PORT
+              value: "6379"
+            - name: CVAT_LOG_IMPORT_ERRORS
+              value: "true"
+            - name: DJANGO_LOG_SERVER_HOST
+              value: vector
+            - name: DJANGO_LOG_SERVER_PORT
+              value: "80"
+            - name: no_proxy
+              value: "clickhouse,grafana,vector,nuclio,opa"
+            # Clickhouse env variables
+            - name: CLICKHOUSE_HOST
+              value: clickhouse
+            - name: CLICKHOUSE_PORT
+              value: "8123"
+            - name: CLICKHOUSE_DB
+              value: cvat
+            - name: CLICKHOUSE_USER
+              value: user
+            - name: CLICKHOUSE_PASSWORD
+              value: user
+            - name: NUMPROCS
+              value: "2"
+            - name: SMOKESCREEN_OPTS
+              value: ""
+          volumeMounts:
+            - name: cvat-data
+              mountPath: /home/django/data
+            - name: cvat-keys
+              mountPath: /home/django/keys
+            - name: cvat-logs
+              mountPath: /home/django/logs
+      volumes:
+        - name: cvat-data
+          persistentVolumeClaim:
+            claimName: cvat-data-pvc
+        - name: cvat-keys
+          persistentVolumeClaim:
+            claimName: cvat-keys-pvc
+        - name: cvat-logs
+          persistentVolumeClaim:
+            claimName: cvat-logs-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-worker-analytics-reports
+  namespace: platform-evml
+  labels:
+    app: cvat-worker-analytics-reports
+spec:
+  type: ClusterIP
+  selector:
+    app: cvat-worker-analytics-reports
+
+# ========================================
+# OPA Service
+# ========================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opa
+  namespace: platform-evml
+  labels:
+    app: opa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opa
+  template:
+    metadata:
+      labels:
+        app: opa
+    spec:
+      initContainers:
+        # - name: wait-for-redis-inmem
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-redis-inmem 6379; do sleep 2; done']
+        # - name: wait-for-redis-ondisk
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-redis-ondisk 6666; do sleep 2; done']
+        # - name: wait-for-db
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z cvat-db 5432; do sleep 2; done']
+      containers:
+        - name: opa
+          image: openpolicyagent/opa:0.63.0
+          ports:
+            - containerPort: 8181
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8181
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          args:
+            - run
+            - --server
+            - --log-level=error
+            - --set=services.cvat.url=http://cvat-server:8080
+            - --set=bundles.cvat.service=cvat
+            - --set=bundles.cvat.resource=/api/auth/rules
+            - --set=bundles.cvat.polling.min_delay_seconds=5
+            - --set=bundles.cvat.polling.max_delay_seconds=15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opa
+  namespace: platform-evml
+  labels:
+    app: opa
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8181
+      targetPort: http
+      protocol: TCP
+  selector:
+    app: opa
+
+# ========================================
+# ClickHouse Service
+# ========================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-clickhouse
+  namespace: platform-evml
+  labels:
+    app: cvat-clickhouse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-clickhouse
+  template:
+    metadata:
+      labels:
+        app: cvat-clickhouse
+    spec:
+      initContainers:
+        - name: fix-permissions-events-db
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /var/lib/clickhouse && chmod -R 770 /var/lib/clickhouse",
+            ]
+          volumeMounts:
+            - name: cvat-events-db
+              mountPath: /var/lib/clickhouse
+      containers:
+        - name: clickhouse
+          image: clickhouse/clickhouse-server:23.11-alpine
+          ports:
+            - containerPort: 8123
+              name: http
+            - containerPort: 9000
+              name: native
+          env:
+            - name: CLICKHOUSE_DB
+              value: cvat
+            - name: CLICKHOUSE_USER
+              value: user
+            - name: CLICKHOUSE_PASSWORD
+              value: user
+          volumeMounts:
+            - name: clickhouse-init-script
+              mountPath: /docker-entrypoint-initdb.d/init.sh
+              subPath: init.sh
+            - name: cvat-events-db
+              mountPath: /var/lib/clickhouse
+      volumes:
+        - name: clickhouse-init-script
+          configMap:
+            name: clickhouse-init-script
+            defaultMode: 0755
+        - name: cvat-events-db
+          persistentVolumeClaim:
+            claimName: cvat-events-db-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-clickhouse
+  namespace: platform-evml
+  labels:
+    app: cvat-clickhouse
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8123
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: 9000
+      targetPort: native
+      protocol: TCP
+      name: native
+  selector:
+    app: cvat-clickhouse
+---
+# For DNS alias compatibility with docker-compose
+apiVersion: v1
+kind: Service
+metadata:
+  name: clickhouse
+  namespace: platform-evml
+  labels:
+    app: cvat-clickhouse
+spec:
+  type: ExternalName
+  externalName: cvat-clickhouse.platform-evml.svc.cluster.local
+  ports:
+    - port: 8123
+      name: http
+    - port: 9000
+      name: native
+
+# ========================================
+# Vector Service
+# ========================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-vector
+  namespace: platform-evml
+  labels:
+    app: cvat-vector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-vector
+  template:
+    metadata:
+      labels:
+        app: cvat-vector
+    spec:
+      containers:
+        - name: vector
+          image: timberio/vector:0.26.0-alpine
+          ports:
+            - containerPort: 80
+              name: http
+          env:
+            - name: CLICKHOUSE_HOST
+              value: clickhouse
+            - name: CLICKHOUSE_PORT
+              value: "8123"
+            - name: CLICKHOUSE_DB
+              value: cvat
+            - name: CLICKHOUSE_USER
+              value: user
+            - name: CLICKHOUSE_PASSWORD
+              value: user
+          volumeMounts:
+            - name: vector-config
+              mountPath: /etc/vector/vector.toml
+              subPath: vector.toml
+      volumes:
+        - name: vector-config
+          configMap:
+            name: vector-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-vector
+  namespace: platform-evml
+  labels:
+    app: cvat-vector
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+  selector:
+    app: cvat-vector
+---
+# For DNS alias compatibility with docker-compose
+apiVersion: v1
+kind: Service
+metadata:
+  name: vector
+  namespace: platform-evml
+  labels:
+    app: cvat-vector
+spec:
+  type: ExternalName
+  externalName: cvat-vector.platform-evml.svc.cluster.local
+  ports:
+    - port: 80
+
+# ========================================
+# Grafana Service
+# ========================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-grafana
+  namespace: platform-evml
+  labels:
+    app: cvat-grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-grafana
+  template:
+    metadata:
+      labels:
+        app: cvat-grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana-oss:10.1.2
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: CLICKHOUSE_HOST
+              value: clickhouse
+            - name: CLICKHOUSE_PORT
+              value: "8123"
+            - name: CLICKHOUSE_DB
+              value: cvat
+            - name: CLICKHOUSE_USER
+              value: user
+            - name: CLICKHOUSE_PASSWORD
+              value: user
+            - name: GF_PATHS_PROVISIONING
+              value: /etc/grafana/provisioning
+            - name: GF_AUTH_BASIC_ENABLED
+              value: "false"
+            - name: GF_AUTH_ANONYMOUS_ENABLED
+              value: "true"
+            - name: GF_AUTH_ANONYMOUS_ORG_ROLE
+              value: "Admin"
+            - name: GF_AUTH_DISABLE_LOGIN_FORM
+              value: "true"
+            - name: GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS
+              value: "grafana-clickhouse-datasource"
+            - name: GF_SERVER_ROOT_URL
+              value: "http://cvat-grafana.cmh.platform-test2.evinternal.net/analytics"
+            - name: GF_INSTALL_PLUGINS
+              value: "https://github.com/grafana/clickhouse-datasource/releases/download/v4.0.8/grafana-clickhouse-datasource-4.0.8.linux_amd64.zip;grafana-clickhouse-datasource"
+            - name: GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH
+              value: "/var/lib/grafana/dashboards/all_events.json"
+          volumeMounts:
+            - name: grafana-datasources
+              mountPath: /etc/grafana/provisioning/datasources
+            - name: grafana-dashboard-config
+              mountPath: /etc/grafana/provisioning/dashboards
+            - name: grafana-dashboards
+              mountPath: /var/lib/grafana/dashboards
+      volumes:
+        - name: grafana-datasources
+          configMap:
+            name: grafana-datasources
+        - name: grafana-dashboard-config
+          configMap:
+            name: grafana-dashboard-config
+        - name: grafana-dashboards
+          configMap:
+            name: grafana-dashboards
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-grafana
+  namespace: platform-evml
+  labels:
+    app: cvat-grafana
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: http
+      protocol: TCP
+  selector:
+    app: cvat-grafana
+---
+# For DNS alias compatibility with docker-compose
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: platform-evml
+  labels:
+    app: cvat-grafana
+spec:
+  type: ExternalName
+  externalName: cvat-grafana.platform-evml.svc.cluster.local
+  ports:
+    - port: 3000
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: cvat-grafana-gateway
+  namespace: platform-evml
+spec:
+  servers:
+    - port:
+        number: 3000
+        name: http-grafana
+        protocol: HTTP
+      hosts:
+        - cvat-grafana.cmh.platform-test2.evinternal.net
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: cvat-grafana-virtual-service
+  namespace: platform-evml
+spec:
+  gateways:
+    - cvat-grafana-gateway
+  hosts:
+    - cvat-grafana.cmh.platform-test2.evinternal.net
+  http:
+    - match:
+        - uri:
+            prefix: /analytics
+      route:
+        - destination:
+            host: cvat-grafana
+            port:
+              number: 3000

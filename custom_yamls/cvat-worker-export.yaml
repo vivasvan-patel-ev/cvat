@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-worker-export
+  namespace: platform-evml
+  labels:
+    app: cvat-worker-export
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-worker-export
+  template:
+    metadata:
+      labels:
+        app: cvat-worker-export
+    spec:
+      containers:
+        - name: worker-export
+          image: cvat/server:dev
+          command:
+            - /bin/bash
+            - -c
+            - "run worker.export"
+          readinessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - "ps aux | grep -v grep | grep -q 'worker.export'"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          env:
+            # Backend env variables
+            - name: CVAT_POSTGRES_HOST
+              value: cvat-db
+            - name: CVAT_REDIS_INMEM_HOST
+              value: cvat-redis-inmem
+            - name: CVAT_REDIS_INMEM_PORT
+              value: "6379"
+            - name: CVAT_REDIS_ONDISK_HOST
+              value: cvat-redis-ondisk
+            - name: CVAT_REDIS_ONDISK_PORT
+              value: "6379"
+            - name: CVAT_LOG_IMPORT_ERRORS
+              value: "true"
+            - name: DJANGO_LOG_SERVER_HOST
+              value: vector
+            - name: DJANGO_LOG_SERVER_PORT
+              value: "80"
+            - name: no_proxy
+              value: "clickhouse,grafana,vector,nuclio,opa"
+            # Clickhouse env variables
+            - name: CLICKHOUSE_HOST
+              value: clickhouse
+            - name: CLICKHOUSE_PORT
+              value: "8123"
+            - name: CLICKHOUSE_DB
+              value: cvat
+            - name: CLICKHOUSE_USER
+              value: user
+            - name: CLICKHOUSE_PASSWORD
+              value: user
+            - name: NUMPROCS
+              value: "2"
+          volumeMounts:
+            - name: cvat-data
+              mountPath: /home/django/data
+            - name: cvat-keys
+              mountPath: /home/django/keys
+            - name: cvat-logs
+              mountPath: /home/django/logs
+      volumes:
+        - name: cvat-data
+          persistentVolumeClaim:
+            claimName: cvat-data-pvc
+        - name: cvat-keys
+          persistentVolumeClaim:
+            claimName: cvat-keys-pvc
+        - name: cvat-logs
+          persistentVolumeClaim:
+            claimName: cvat-logs-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-worker-export
+  namespace: platform-evml
+  labels:
+    app: cvat-worker-export
+spec:
+  type: ClusterIP
+  selector:
+    app: cvat-worker-export

@@ -44,7 +44,7 @@ module.exports = (env) => {
         },
         output: {
             path: path.resolve(__dirname, 'dist'),
-            filename: 'assets/[name].[contenthash].min.js',
+            filename: 'assets/[name].min.js',
             publicPath: '/',
         },
         devServer: {
@@ -202,8 +202,25 @@ module.exports = (env) => {
             })] : []),
             new WebpackManifestPlugin({
                 fileName: 'asset-manifest.json',
-                publicPath: '/' // Adjust if your assets are served from a different base path
-            }),
+                publicPath: '/',
+                generate: (seed, files, entrypoints) => {
+                    const manifestFiles = files.reduce((manifest, file) => {
+                        manifest[file.name] = file.path;
+                        return manifest;
+                    }, seed);
+                    // Only cvat-ui.min.js should be in entrypoints, all other files go to manifestFiles
+                    const entrypointFiles = Object.keys(entrypoints).reduce((result, entrypoint) => {
+                        const filteredFiles = entrypoints[entrypoint].filter(
+                            (fileName) => fileName.endsWith('cvat-ui.min.js')
+                        );
+                        return [...result, ...filteredFiles];
+                    }, []);
+                    return {
+                        files: manifestFiles,
+                        entrypoints: entrypointFiles,
+                    };
+                },
+            })
         ],
     }
 };

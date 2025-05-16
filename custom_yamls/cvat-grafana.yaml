@@ -1,0 +1,186 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: cvat-grafana-gateway
+  namespace: platform-evml
+spec:
+  servers:
+    - port:
+        number: 3000
+        name: http-grafana
+        protocol: HTTP
+      hosts:
+        - cvat-grafana.cmh.platform-test2.evinternal.net
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: cvat-grafana-virtual-service
+  namespace: platform-evml
+spec:
+  gateways:
+    - cvat-grafana-gateway
+  hosts:
+    - cvat-grafana.cmh.platform-test2.evinternal.net
+  http:
+    - match:
+        - uri:
+            prefix: /analytics
+      route:
+        - destination:
+            host: cvat-grafana
+            port:
+              number: 3000
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: platform-evml
+data:
+  ds.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: 'ClickHouse'
+        type: 'grafana-clickhouse-datasource'
+        isDefault: true
+        jsonData:
+          defaultDatabase: ${CLICKHOUSE_DB}
+          port: ${CLICKHOUSE_PORT}
+          server: ${CLICKHOUSE_HOST}
+          username: ${CLICKHOUSE_USER}
+          tlsSkipVerify: false
+          protocol: http
+        secureJsonData:
+          password: ${CLICKHOUSE_PASSWORD}
+        editable: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-config
+  namespace: platform-evml
+data:
+  dashboard.yaml: |
+    apiVersion: 1
+    providers:
+      - name: cvat-logs
+        type: file
+        updateIntervalSeconds: 30
+        options:
+          path: /var/lib/grafana/dashboards
+          foldersFromFilesStructure: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: platform-evml
+data:
+  all_events.json: |
+    {
+      "dashboard": {
+        "title": "CVAT Events Dashboard",
+        "panels": []
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-grafana
+  namespace: platform-evml
+  labels:
+    app: cvat-grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-grafana
+  template:
+    metadata:
+      labels:
+        app: cvat-grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana-oss:10.1.2
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: CLICKHOUSE_HOST
+              value: clickhouse
+            - name: CLICKHOUSE_PORT
+              value: "8123"
+            - name: CLICKHOUSE_DB
+              value: cvat
+            - name: CLICKHOUSE_USER
+              value: user
+            - name: CLICKHOUSE_PASSWORD
+              value: user
+            - name: GF_PATHS_PROVISIONING
+              value: /etc/grafana/provisioning
+            - name: GF_AUTH_BASIC_ENABLED
+              value: "false"
+            - name: GF_AUTH_ANONYMOUS_ENABLED
+              value: "true"
+            - name: GF_AUTH_ANONYMOUS_ORG_ROLE
+              value: "Admin"
+            - name: GF_AUTH_DISABLE_LOGIN_FORM
+              value: "true"
+            - name: GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS
+              value: "grafana-clickhouse-datasource"
+            - name: GF_SERVER_ROOT_URL
+              value: "http://cvat-grafana.cmh.platform-test2.evinternal.net/analytics"
+            - name: GF_INSTALL_PLUGINS
+              value: "https://github.com/grafana/clickhouse-datasource/releases/download/v4.0.8/grafana-clickhouse-datasource-4.0.8.linux_amd64.zip;grafana-clickhouse-datasource"
+            - name: GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH
+              value: "/var/lib/grafana/dashboards/all_events.json"
+          volumeMounts:
+            - name: grafana-datasources
+              mountPath: /etc/grafana/provisioning/datasources
+            - name: grafana-dashboard-config
+              mountPath: /etc/grafana/provisioning/dashboards
+            - name: grafana-dashboards
+              mountPath: /var/lib/grafana/dashboards
+      volumes:
+        - name: grafana-datasources
+          configMap:
+            name: grafana-datasources
+        - name: grafana-dashboard-config
+          configMap:
+            name: grafana-dashboard-config
+        - name: grafana-dashboards
+          configMap:
+            name: grafana-dashboards
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-grafana
+  namespace: platform-evml
+  labels:
+    app: cvat-grafana
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: http
+      protocol: TCP
+  selector:
+    app: cvat-grafana
+---
+# For DNS alias compatibility with docker-compose
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: platform-evml
+  labels:
+    app: cvat-grafana
+spec:
+  type: ExternalName
+  externalName: cvat-grafana.platform-evml.svc.cluster.local
+  ports:
+    - port: 3000
