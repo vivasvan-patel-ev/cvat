@@ -8,6 +8,7 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
 const CopyPlugin = require('copy-webpack-plugin');
+const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 
 module.exports = (env) => {
     const defaultAppConfig = path.join(__dirname, 'src/config.tsx');
@@ -43,7 +44,7 @@ module.exports = (env) => {
         },
         output: {
             path: path.resolve(__dirname, 'dist'),
-            filename: 'assets/[name].[contenthash].min.js',
+            filename: 'assets/[name].min.js',
             publicPath: '/',
         },
         devServer: {
@@ -199,6 +200,27 @@ module.exports = (env) => {
                 append: '\n',
                 filename: `${sourceMapsToken}/[file].map`,
             })] : []),
+            new WebpackManifestPlugin({
+                fileName: 'asset-manifest.json',
+                publicPath: '/',
+                generate: (seed, files, entrypoints) => {
+                    const manifestFiles = files.reduce((manifest, file) => {
+                        manifest[file.name] = file.path;
+                        return manifest;
+                    }, seed);
+                    // Only cvat-ui.min.js should be in entrypoints, all other files go to manifestFiles
+                    const entrypointFiles = Object.keys(entrypoints).reduce((result, entrypoint) => {
+                        const filteredFiles = entrypoints[entrypoint].filter(
+                            (fileName) => fileName.endsWith('cvat-ui.min.js')
+                        );
+                        return [...result, ...filteredFiles];
+                    }, []);
+                    return {
+                        files: manifestFiles,
+                        entrypoints: entrypointFiles,
+                    };
+                },
+            })
         ],
     }
 };

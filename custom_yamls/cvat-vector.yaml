@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vector-config
+  namespace: platform-evml
+data:
+  vector.toml: |
+    # Vector configuration
+    # This is a simplified version since we don't have the actual vector.toml content
+    # Replace with the actual config when available
+    [sources]
+      [sources.django_logs]
+        type = "http"
+        address = "0.0.0.0:80"
+        encoding = "text"
+        headers = ["Content-Type"]
+
+    [sinks]
+      [sinks.clickhouse]
+        inputs = ["django_logs"]
+        type = "clickhouse"
+        database = "${CLICKHOUSE_DB}"
+        endpoint = "http://${CLICKHOUSE_HOST}:${CLICKHOUSE_PORT}"
+        table = "django_logs"
+        auth.strategy = "basic"
+        auth.user = "${CLICKHOUSE_USER}"
+        auth.password = "${CLICKHOUSE_PASSWORD}"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-vector
+  namespace: platform-evml
+  labels:
+    app: cvat-vector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-vector
+  template:
+    metadata:
+      labels:
+        app: cvat-vector
+    spec:
+      containers:
+        - name: vector
+          image: timberio/vector:0.26.0-alpine
+          ports:
+            - containerPort: 80
+              name: http
+          env:
+            - name: CLICKHOUSE_HOST
+              value: clickhouse
+            - name: CLICKHOUSE_PORT
+              value: "8123"
+            - name: CLICKHOUSE_DB
+              value: cvat
+            - name: CLICKHOUSE_USER
+              value: user
+            - name: CLICKHOUSE_PASSWORD
+              value: user
+          volumeMounts:
+            - name: vector-config
+              mountPath: /etc/vector/vector.toml
+              subPath: vector.toml
+      volumes:
+        - name: vector-config
+          configMap:
+            name: vector-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-vector
+  namespace: platform-evml
+  labels:
+    app: cvat-vector
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+  selector:
+    app: cvat-vector
+---
+# For DNS alias compatibility with docker-compose
+apiVersion: v1
+kind: Service
+metadata:
+  name: vector
+  namespace: platform-evml
+  labels:
+    app: cvat-vector
+spec:
+  type: ExternalName
+  externalName: cvat-vector.platform-evml.svc.cluster.local
+  ports:
+    - port: 80

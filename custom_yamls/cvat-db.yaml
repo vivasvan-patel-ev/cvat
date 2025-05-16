@@ -1,0 +1,146 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: cvat-db-gateway
+  namespace: platform-evml
+spec:
+  servers:
+    - port:
+        number: 5432
+        name: tcp-postgres
+        protocol: TCP
+      hosts:
+        - cvat-db.cmh.platform-test2.evinternal.net
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: cvat-db-virtual-service
+  namespace: platform-evml
+spec:
+  gateways:
+    - cvat-db-gateway
+  hosts:
+    - cvat-db.cmh.platform-test2.evinternal.net
+  tcp:
+    - match:
+        - port: 5432
+      route:
+        - destination:
+            host: cvat-db
+            port:
+              number: 5432
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cvat-db-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 100Gi # Adjust size as needed
+  accessModes:
+    - ReadWriteOnce # Suitable for a single database instance
+  hostPath:
+    path: '/mnt/data/cvat-db'
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cvat-db-pvc
+  namespace: platform-evml
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi # Should be less than or equal to the PV's capacity
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-db
+  namespace: platform-evml
+  labels:
+    app: cvat-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-db
+  template:
+    metadata:
+      labels:
+        app: cvat-db
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          ports:
+            - containerPort: 5432
+              name: postgres
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - root
+                - -d
+                - cvat
+                - -h
+                - localhost
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 1
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - root
+                - -d
+                - cvat
+                - -h
+                - localhost
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          env:
+            - name: POSTGRES_USER
+              value: 'root'
+            - name: POSTGRES_DB
+              value: 'cvat'
+            - name: POSTGRES_HOST_AUTH_METHOD
+              value: 'trust'
+            # It's good practice to set PGDATA explicitly when using PVCs
+            # to ensure data goes to the persistent volume.
+            - name: PGDATA
+              value: '/var/lib/postgresql/data/pgdata' # Note: The mount path is /var/lib/postgresql/data
+          volumeMounts:
+            - name: cvat-db-storage
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: cvat-db-storage
+          persistentVolumeClaim:
+            claimName: cvat-db-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-db-virtual-service
+  namespace: platform-evml
+  labels:
+    app: cvat-db
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: postgres
+      protocol: TCP
+  selector:
+    app: cvat-db

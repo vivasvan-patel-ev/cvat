@@ -1,0 +1,684 @@
+---
+# PostgreSQL Secret
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "cvat-postgres-secret"
+  namespace: default
+  labels:
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/instance: cvat
+type: generic
+stringData:
+  database: cvat
+  username: cvat
+  password: cvat_postgresql
+  postgres-password: cvat_postgresql_postgres
+---
+# Redis Secret
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "cvat-redis-secret"
+  namespace: default
+  labels:
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/instance: cvat
+type: generic
+stringData:
+  password: cvat_redis
+---
+# Persistent Volume for CVAT data
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cvat-backend-pv
+  labels:
+    type: local
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/instance: cvat
+    app: cvat-app
+    tier: backend
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /tmp/cvat-data
+    type: DirectoryOrCreate
+
+---
+# Persistent Volume Claim for CVAT data
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cvat-backend-data
+  namespace: default
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/instance: cvat
+    app: cvat-app
+    tier: backend
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  selector:
+    matchLabels:
+      app: cvat-app
+      tier: backend
+  resources:
+    requests:
+      storage: 20Gi
+---
+# Persistent Volume for PostgreSQL data
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cvat-postgres-pv
+  labels:
+    type: local
+    app: cvat-postgres # Label to distinguish this PV
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 8Gi # Matching the request in cvat-postgres-pvc
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /tmp/cvat-postgres-data # Different path for PostgreSQL data
+    type: DirectoryOrCreate
+---
+# PostgreSQL Persistent Volume Claim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cvat-postgres-pvc
+  namespace: default
+  labels:
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/instance: cvat
+spec:
+  storageClassName: manual # Or your preferred storage class
+  accessModes:
+    - ReadWriteOnce # Suitable for most single-instance DBs
+  selector:
+    matchLabels:
+      app: cvat-postgres # Matches the label on cvat-postgres-pv
+      type: local
+  resources:
+    requests:
+      storage: 8Gi # Adjust as needed
+---
+# PostgreSQL Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-postgresql
+  namespace: default
+  labels:
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/component: primary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgresql
+      app.kubernetes.io/instance: cvat
+      app.kubernetes.io/component: primary
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: postgresql
+        app.kubernetes.io/instance: cvat
+        app.kubernetes.io/component: primary
+    spec:
+      containers:
+      - name: postgresql
+        image: postgres:15-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: tcp-postgresql
+          containerPort: 5432
+        readinessProbe:
+          exec:
+            command:
+              - pg_isready
+              - -U
+              - root
+              - -d
+              - cvat
+              - -h
+              - localhost
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 1
+          failureThreshold: 3
+        livenessProbe:
+          exec:
+            command:
+              - pg_isready
+              - -U
+              - root
+              - -d
+              - cvat
+              - -h
+              - localhost
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        env:
+        - name: POSTGRES_USER
+          value: "root"
+        - name: POSTGRES_DB
+          value: "cvat"
+        - name: POSTGRES_HOST_AUTH_METHOD
+          value: "trust"
+        - name: PGDATA
+          value: "/var/lib/postgresql/data/pgdata"
+        volumeMounts:
+        - name: postgresql-data
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgresql-data
+        persistentVolumeClaim:
+          claimName: cvat-postgres-pvc
+---
+# PostgreSQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-postgresql
+  namespace: default
+  labels:
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/component: primary
+spec:
+  type: ClusterIP
+  ports:
+    - name: tcp-postgresql
+      port: 5432
+      targetPort: tcp-postgresql
+  selector:
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/component: primary
+---
+# Redis Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-redis
+  namespace: default
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/component: master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+      app.kubernetes.io/instance: cvat
+      app.kubernetes.io/component: master
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: redis
+        app.kubernetes.io/instance: cvat
+        app.kubernetes.io/component: master
+    spec:
+      containers:
+      - name: redis
+        image: redis:7.2.3-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: redis
+          containerPort: 6379
+---
+# Redis Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-redis-master
+  namespace: default
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/component: master
+spec:
+  type: ClusterIP
+  ports:
+    - name: tcp-redis
+      port: 6379
+      targetPort: redis
+  selector:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/component: master
+---
+# Redis On-Disk Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-redis-ondisk
+  namespace: default
+  labels:
+    app.kubernetes.io/name: redis-ondisk
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/component: master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: redis-ondisk
+      app.kubernetes.io/instance: cvat
+      app.kubernetes.io/component: master
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: redis-ondisk
+        app.kubernetes.io/instance: cvat
+        app.kubernetes.io/component: master
+    spec:
+      containers:
+      - name: redis
+        image: redis:7.2.3-alpine
+        imagePullPolicy: IfNotPresent
+        command:
+          - redis-server
+          - "--save"
+          - "60"
+          - "100"
+          - "--appendonly"
+          - "yes"
+        ports:
+        - name: redis
+          containerPort: 6379
+---
+# Redis On-Disk Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-redis-ondisk
+  namespace: default
+  labels:
+    app.kubernetes.io/name: redis-ondisk
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/component: master
+spec:
+  type: ClusterIP
+  ports:
+    - name: tcp-redis
+      port: 6379
+      targetPort: redis
+  selector:
+    app.kubernetes.io/name: redis-ondisk
+    app.kubernetes.io/instance: cvat
+    app.kubernetes.io/component: master
+---
+# CVAT Backend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-backend-server
+  namespace: default
+  labels:
+    app: cvat-app
+    tier: backend
+    component: server
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/instance: cvat
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: cvat-app
+      tier: backend
+      component: server
+      app.kubernetes.io/name: cvat
+      app.kubernetes.io/instance: cvat
+  template:
+    metadata:
+      labels:
+        app: cvat-app
+        tier: backend
+        component: server
+        app.kubernetes.io/name: cvat
+        app.kubernetes.io/instance: cvat
+    spec:
+      securityContext:
+        fsGroup: 1000
+      initContainers:
+        - name: fix-permissions-keys
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/keys && chmod -R 770 /home/django/keys",
+            ]
+          volumeMounts:
+            - name: cvat-backend-data
+              mountPath: /home/django/keys
+              subPath: keys
+        - name: fix-permissions-data
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/data && chmod -R 770 /home/django/data",
+            ]
+          volumeMounts:
+            - name: cvat-backend-data
+              mountPath: /home/django/data
+              subPath: data
+        - name: fix-permissions-logs
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "chown -R 1000:1000 /home/django/logs && chmod -R 770 /home/django/logs",
+            ]
+          volumeMounts:
+            - name: cvat-backend-data
+              mountPath: /home/django/logs
+              subPath: logs
+        - name: wait-for-db
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z cvat-postgresql 5432; do echo "Waiting for PostgreSQL..."; sleep 2; done']
+      containers:
+        - name: cvat-backend-app-container
+          image: cvat/server:dev
+          imagePullPolicy: Always
+          args:
+            - init
+            - run
+            - server
+          env:
+            - name: CVAT_POSTGRES_HOST
+              value: "cvat-postgresql"
+            - name: CVAT_POSTGRES_PORT
+              value: "5432"
+            - name: CVAT_POSTGRES_USER
+              value: "root"
+            - name: CVAT_POSTGRES_DBNAME
+              value: "cvat"
+            - name: CVAT_POSTGRES_SSLMODE
+              value: "disable"
+            - name: CVAT_REDIS_INMEM_HOST
+              value: "cvat-redis-master"
+            - name: CVAT_REDIS_INMEM_PORT
+              value: "6379"
+            - name: CVAT_REDIS_ONDISK_HOST
+              value: "cvat-redis-ondisk"
+            - name: CVAT_REDIS_ONDISK_PORT
+              value: "6379"
+            - name: DJANGO_MODWSGI_EXTRA_ARGS
+              value: ""
+            - name: ALLOWED_HOSTS
+              value: "*"
+            - name: ADAPTIVE_AUTO_ANNOTATION
+              value: "false"
+            - name: NUMPROCS
+              value: "2"
+            - name: CVAT_ANALYTICS
+              value: "1"
+            - name: ONE_RUNNING_JOB_IN_QUEUE_PER_USER
+              value: "True"
+            - name: SMOKESCREEN_OPTS
+              value: ""
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /api/server/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /api/server/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 10
+            failureThreshold: 3
+          volumeMounts:
+            - mountPath: /home/django/data
+              name: cvat-backend-data
+              subPath: data
+            - mountPath: /home/django/keys
+              name: cvat-backend-data
+              subPath: keys
+            - mountPath: /home/django/logs
+              name: cvat-backend-data
+              subPath: logs
+            - mountPath: /home/django/models
+              name: cvat-backend-data
+              subPath: models
+      volumes:
+        - name: cvat-backend-data
+          persistentVolumeClaim:
+            claimName: "cvat-backend-data"
+---
+# CVAT Backend Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-backend-server
+  namespace: default
+  labels:
+    app: cvat-app
+    tier: backend
+    component: server
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/instance: cvat
+spec:
+  type: ClusterIP
+  ports:
+    - name: tcp-cvat
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: cvat-app
+    tier: backend
+    component: server
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/instance: cvat
+---
+# CVAT Frontend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-frontend
+  namespace: default
+  labels:
+    app: cvat-app
+    tier: frontend
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/instance: cvat
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: cvat-app
+      tier: frontend
+      app.kubernetes.io/name: cvat
+      app.kubernetes.io/instance: cvat
+  template:
+    metadata:
+      labels:
+        app: cvat-app
+        tier: frontend
+        app.kubernetes.io/name: cvat
+        app.kubernetes.io/instance: cvat
+    spec:
+      containers:
+        - name: cvat-frontend-app-container
+          image: cvat/ui:dev
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 80
+          readinessProbe:
+            tcpSocket:
+              port: 80
+            failureThreshold: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 80
+            failureThreshold: 5
+            periodSeconds: 10
+---
+# CVAT Frontend Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-frontend-service
+  namespace: default
+  labels:
+    app: cvat-app
+    tier: frontend
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/instance: cvat
+spec:
+  selector:
+    app: cvat-app
+    tier: frontend
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/instance: cvat
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  type: ClusterIP
+---
+# Frontend Gateway (Istio)
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: cvat-ui-gateway
+  namespace: default
+spec:
+  servers:
+    - port:
+        number: 80
+        name: http-ui
+        protocol: HTTP
+      hosts:
+        - "cvat-ui.cmh.platform-test2.evinternal.net"
+---
+# Frontend Virtual Service (Istio)
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: cvat-ui-virtual-service
+  namespace: default
+spec:
+  gateways:
+    - cvat-ui-gateway
+  hosts:
+    - "cvat-ui.cmh.platform-test2.evinternal.net"
+  http:
+    - route:
+        - destination:
+            host: cvat-frontend-service
+            port:
+              number: 80
+---
+# Backend Gateway (Istio)
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: cvat-server-gateway
+  namespace: default
+spec:
+  servers:
+    - port:
+        number: 8080
+        name: http-cvat
+        protocol: HTTP
+      hosts:
+        - "cvat-server.cmh.platform-test2.evinternal.net"
+---
+# Backend Virtual Service (Istio)
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: cvat-server-virtual-service
+  namespace: default
+spec:
+  gateways:
+    - cvat-server-gateway
+  hosts:
+    - "cvat-server.cmh.platform-test2.evinternal.net"
+  http:
+    - match:
+        - uri:
+            prefix: /api/
+        - uri:
+            prefix: /static/
+        - uri:
+            prefix: /admin
+        - uri:
+            prefix: /documentation/
+        - uri:
+            prefix: /django-rq
+      route:
+        - destination:
+            host: cvat-backend-server
+            port:
+              number: 8080
+---
+# Ingress for CVAT (non-Istio option)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cvat-ingress
+  namespace: default
+  labels:
+    app.kubernetes.io/name: cvat
+    app.kubernetes.io/instance: cvat
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+spec:
+  rules:
+  - host: "cvat-ui.cmh.platform-test2.evinternal.net"
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: cvat-backend-server
+            port:
+              number: 8080
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cvat-frontend-service
+            port:
+              number: 80

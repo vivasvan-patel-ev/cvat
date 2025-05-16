@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: MIT
 
-import React from 'react';
-import { createRoot } from 'react-dom/client';
+import React, { Suspense } from 'react';
+import { createRoot, type Root } from 'react-dom/client';
 import { connect, Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 
@@ -16,6 +16,7 @@ import { getPluginsAsync } from 'actions/plugins-actions';
 import { getUserAgreementsAsync } from 'actions/useragreements-actions';
 import CVATApplication from 'components/cvat-app';
 import PluginsEntrypoint from 'components/plugins-entrypoint';
+``;
 import LayoutGrid from 'components/layout-grid/layout-grid';
 import logger, { EventScope } from 'cvat-logger';
 import createCVATStore, { getCVATStore } from 'cvat-store';
@@ -76,9 +77,8 @@ interface DispatchToProps {
 }
 
 function mapStateToProps(state: CombinedState): StateToProps {
-    const {
-        plugins, auth, formats, about, userAgreements, models, organizations, invitations, serverAPI, requests,
-    } = state;
+    const { plugins, auth, formats, about, userAgreements, models, organizations, invitations, serverAPI, requests } =
+        state;
 
     return {
         userInitialized: auth.initialized,
@@ -129,26 +129,45 @@ function mapDispatchToProps(dispatch: any): DispatchToProps {
 
 const ReduxAppWrapper = connect(mapStateToProps, mapDispatchToProps)(CVATApplication);
 
-const root = createRoot(document.getElementById('root') as HTMLDivElement);
-root.render((
-    <Provider store={cvatStore}>
-        <BrowserRouter>
-            <PluginsEntrypoint />
-            <ReduxAppWrapper />
-        </BrowserRouter>
-        <LayoutGrid />
-    </Provider>
-));
+let root: Root | null = null;
+
+const mount = (elementId: string, props: Record<string, any> = {}) => {
+    const targetElement = document.getElementById(elementId);
+    if (!targetElement) {
+        console.error(`[CVAT MFE] Target element with ID '${elementId}' not found.`);
+        return;
+    }
+
+    root = createRoot(targetElement);
+    root.render(
+        <Provider store={cvatStore}>
+            <BrowserRouter>
+                <Suspense fallback={<div>Loading CVAT...</div>}>
+                    <PluginsEntrypoint />
+                    <ReduxAppWrapper {...props} />
+                </Suspense>
+            </BrowserRouter>
+            <LayoutGrid />
+        </Provider>,
+    );
+};
+
+const unmount = (elementId: string) => {
+    if (root) {
+        root.unmount();
+        root = null;
+        console.log(`[CVAT MFE] Unmounted from '${elementId}'.`);
+    } else {
+        console.warn(`[CVAT MFE] No root found for element ID '${elementId}' to unmount.`);
+    }
+};
+
+(window as any).CVAT = { mount, unmount };
 
 window.addEventListener('error', (errorEvent: ErrorEvent): boolean => {
-    const {
-        filename, lineno, colno, error,
-    } = errorEvent;
+    const { filename, lineno, colno, error } = errorEvent;
 
-    if (
-        filename && typeof lineno === 'number' &&
-        typeof colno === 'number' && error
-    ) {
+    if (filename && typeof lineno === 'number' && typeof colno === 'number' && error) {
         // weird react behaviour
         // it also gets event only in development environment, caught and handled in componentDidCatch
         // discussion is here https://github.com/facebook/react/issues/10474

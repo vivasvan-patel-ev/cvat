@@ -23,7 +23,23 @@
         <title>Computer Vision Annotation Tool</title>
     </head>
     <body translate="no">
-        <div id="root"></div>
-        <div id="layout-grid"></div>
+        <div id="ml-live-root">
+            <div id="root"></div>
+            <div id="layout-grid"></div>
+        </div>
+
+        <!-- Webpack will inject the main script tag here -->
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (window.CVAT && typeof window.CVAT.mount === 'function') {
+                    // Mount the app into the 'root' div
+                    window.CVAT.mount('root', {});
+                    console.log('[CVAT] UI Mounted via DOMContentLoaded');
+                } else {
+                    console.error('[CVAT] window.CVAT.mount function not found after DOMContentLoaded.');
+                }
+            });
+        </script>
     </body>
 </html>

@@ -1,0 +1,142 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: cvat-redis-ondisk-gateway
+  namespace: platform-evml
+spec:
+  servers:
+    - port:
+        number: 6379
+        name: tcp-kvrocks
+        protocol: TCP
+      hosts:
+        - cvat-redis-ondisk.cmh.platform-test2.evinternal.net
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: cvat-redis-ondisk-virtual-service
+  namespace: platform-evml
+spec:
+  gateways:
+    - cvat-redis-ondisk-gateway
+  hosts:
+    - cvat-redis-ondisk.cmh.platform-test2.evinternal.net
+  tcp:
+    - match:
+        - port: 6379
+      route:
+        - destination:
+            host: cvat-redis-ondisk
+            port:
+              number: 6379
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cvat-redis-ondisk-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: '/mnt/data/cvat-redis-ondisk'
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cvat-redis-ondisk-pvc
+  namespace: platform-evml
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-redis-ondisk
+  namespace: platform-evml
+  labels:
+    app: cvat-redis-ondisk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-redis-ondisk
+  template:
+    metadata:
+      labels:
+        app: cvat-redis-ondisk
+    spec:
+      # Use init container to handle child process reaping, as mentioned in docker-compose
+      enableServiceLinks: false
+      shareProcessNamespace: true
+      initContainers:
+        - name: init-process
+          image: busybox
+          command: ["sh", "-c", "echo 'Init container for enabling process namespace sharing'"]
+      containers:
+        - name: kvrocks
+          image: apache/kvrocks:2.7.0
+          ports:
+            - containerPort: 6379
+              name: kvrocks
+          readinessProbe:
+            exec:
+              command:
+                - redis-cli
+                - -h
+                - localhost
+                - ping
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 1
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command:
+                - redis-cli
+                - -h
+                - localhost
+                - ping
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          command:
+            - kvrocks
+            - "--dir"
+            - "/var/lib/kvrocks/data"
+            - "--bind"
+            - "0.0.0.0"
+          volumeMounts:
+            - name: cvat-redis-ondisk-storage
+              mountPath: /var/lib/kvrocks/data
+      volumes:
+        - name: cvat-redis-ondisk-storage
+          persistentVolumeClaim:
+            claimName: cvat-redis-ondisk-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-redis-ondisk
+  namespace: platform-evml
+  labels:
+    app: cvat-redis-ondisk
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6379
+      targetPort: kvrocks
+      protocol: TCP
+  selector:
+    app: cvat-redis-ondisk

@@ -1,0 +1,128 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cvat-events-db-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 30Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: '/mnt/data/cvat-events-db'
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cvat-events-db-pvc
+  namespace: platform-evml
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 30Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: clickhouse-init-script
+  namespace: platform-evml
+data:
+  init.sh: |
+    #!/bin/bash
+    set -e
+
+    clickhouse client -n <<-EOSQL
+        CREATE DATABASE IF NOT EXISTS $CLICKHOUSE_DB;
+        CREATE USER IF NOT EXISTS $CLICKHOUSE_USER IDENTIFIED BY '$CLICKHOUSE_PASSWORD';
+        GRANT ALL ON $CLICKHOUSE_DB.* TO $CLICKHOUSE_USER;
+    EOSQL
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-clickhouse
+  namespace: platform-evml
+  labels:
+    app: cvat-clickhouse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-clickhouse
+  template:
+    metadata:
+      labels:
+        app: cvat-clickhouse
+    spec:
+      containers:
+        - name: clickhouse
+          image: clickhouse/clickhouse-server:23.11-alpine
+          ports:
+            - containerPort: 8123
+              name: http
+            - containerPort: 9000
+              name: native
+          env:
+            - name: CLICKHOUSE_DB
+              value: cvat
+            - name: CLICKHOUSE_USER
+              value: user
+            - name: CLICKHOUSE_PASSWORD
+              value: user
+          volumeMounts:
+            - name: clickhouse-init-script
+              mountPath: /docker-entrypoint-initdb.d/init.sh
+              subPath: init.sh
+            - name: cvat-events-db
+              mountPath: /var/lib/clickhouse
+      volumes:
+        - name: clickhouse-init-script
+          configMap:
+            name: clickhouse-init-script
+            defaultMode: 0755
+        - name: cvat-events-db
+          persistentVolumeClaim:
+            claimName: cvat-events-db-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-clickhouse
+  namespace: platform-evml
+  labels:
+    app: cvat-clickhouse
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8123
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: 9000
+      targetPort: native
+      protocol: TCP
+      name: native
+  selector:
+    app: cvat-clickhouse
+---
+# For DNS alias compatibility with docker-compose
+apiVersion: v1
+kind: Service
+metadata:
+  name: clickhouse
+  namespace: platform-evml
+  labels:
+    app: cvat-clickhouse
+spec:
+  type: ExternalName
+  externalName: cvat-clickhouse.platform-evml.svc.cluster.local
+  ports:
+    - port: 8123
+      name: http
+    - port: 9000
+      name: native

@@ -1,0 +1,246 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: cvat-server-gateway
+  namespace: platform-evml
+spec:
+  servers:
+    - port:
+        number: 8080
+        name: http-cvat
+        protocol: HTTP
+      hosts:
+        - cvat-server.cmh.platform-test2.evinternal.net
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: cvat-server-virtual-service
+  namespace: platform-evml
+spec:
+  gateways:
+    - cvat-server-gateway
+  hosts:
+    - cvat-server.cmh.platform-test2.evinternal.net
+  http:
+    - match:
+        - uri:
+            prefix: /api/
+        - uri:
+            prefix: /static/
+        - uri:
+            prefix: /admin
+        - uri:
+            prefix: /documentation/
+        - uri:
+            prefix: /django-rq
+      route:
+        - destination:
+            host: cvat-server
+            port:
+              number: 8080
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cvat-data-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: '/mnt/data/cvat-data'
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cvat-data-pvc
+  namespace: platform-evml
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cvat-keys-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: '/mnt/data/cvat-keys'
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cvat-keys-pvc
+  namespace: platform-evml
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cvat-logs-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: '/mnt/data/cvat-logs'
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cvat-logs-pvc
+  namespace: platform-evml
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cvat-server
+  namespace: platform-evml
+  labels:
+    app: cvat-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cvat-server
+  template:
+    metadata:
+      labels:
+        app: cvat-server
+    spec:
+      containers:
+        - name: server
+          image: cvat/server:dev
+          ports:
+            - containerPort: 8080
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /api/server/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /api/server/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 10
+            failureThreshold: 3
+          command:
+            - /bin/bash
+            - -c
+            - "/usr/bin/supervisord -c /etc/supervisord.conf"
+          env:
+            # Backend env variables
+            - name: CVAT_POSTGRES_HOST
+              value: cvat-db
+            - name: CVAT_REDIS_INMEM_HOST
+              value: cvat-redis-inmem
+            - name: CVAT_REDIS_INMEM_PORT
+              value: "6379"
+            - name: CVAT_REDIS_ONDISK_HOST
+              value: cvat-redis-ondisk
+            - name: CVAT_REDIS_ONDISK_PORT
+              value: "6379" # Note: Docker-compose uses 6666 but we use 6379 here because that's what we configured in our K8s services
+            - name: CVAT_LOG_IMPORT_ERRORS
+              value: "true"
+            - name: DJANGO_LOG_SERVER_HOST
+              value: vector
+            - name: DJANGO_LOG_SERVER_PORT
+              value: "80"
+            - name: no_proxy
+              value: "clickhouse,grafana,vector,nuclio,opa"
+            # Clickhouse env variables
+            - name: CLICKHOUSE_HOST
+              value: clickhouse
+            - name: CLICKHOUSE_PORT
+              value: "8123"
+            - name: CLICKHOUSE_DB
+              value: cvat
+            - name: CLICKHOUSE_USER
+              value: user
+            - name: CLICKHOUSE_PASSWORD
+              value: user
+            # Server-specific env variables
+            - name: DJANGO_MODWSGI_EXTRA_ARGS
+              value: ""
+            - name: ALLOWED_HOSTS
+              value: "*"
+            - name: ADAPTIVE_AUTO_ANNOTATION
+              value: "false"
+            - name: NUMPROCS
+              value: "2"
+            - name: CVAT_ANALYTICS
+              value: "1"
+            - name: ONE_RUNNING_JOB_IN_QUEUE_PER_USER
+              value: ""
+          volumeMounts:
+            - name: cvat-data
+              mountPath: /home/django/data
+            - name: cvat-keys
+              mountPath: /home/django/keys
+            - name: cvat-logs
+              mountPath: /home/django/logs
+      volumes:
+        - name: cvat-data
+          persistentVolumeClaim:
+            claimName: cvat-data-pvc
+        - name: cvat-keys
+          persistentVolumeClaim:
+            claimName: cvat-keys-pvc
+        - name: cvat-logs
+          persistentVolumeClaim:
+            claimName: cvat-logs-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cvat-server
+  namespace: platform-evml
+  labels:
+    app: cvat-server
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+  selector:
+    app: cvat-server
